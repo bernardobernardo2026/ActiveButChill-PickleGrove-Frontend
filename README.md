@@ -67,7 +67,7 @@ The proposed system provides a centralized platform where players can check cour
 | [**Cadorniga, Julie Ann**](https://github.com/julieann94) | Assistant UI/UX Designer |
 | [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
 | [**Paraon, Rae Nicole**](https://github.com/Raeni-paraon) | Technical Writer |
-| [**Tagob, Marian**](https://github.com/mariantagobs) | Lead UI/UX Designer |
+| [**Tagob, Marian**](https://github.com/Marian-Tagob) | Lead UI/UX Designer |
 
 
 
