@@ -32,7 +32,10 @@ The proposed system provides a centralized platform where players can check cour
 <ul><ul><ul>
   <li>🗓️ Court Availability Calendar</li>
   <li>🕐 Date and Time Selection</li>
-  <li><img width="25" height="25" alt="Image" src="https://github.com/user-attachments/assets/06cad6d6-ffb9-49b5-a9d0-0d2ea7ae754d" /></li>
+  <li><img width="20" height="20" alt="Image" src="https://github.com/user-attachments/assets/1c6dd46c-1e41-4889-ad1d-1b68a17e5633" /> Automatic Fee Calculation </li>
+  <li>🏓 Paddle Rental Selection</li>
+  <li>🥤 Add food and drinks to reservation</li>
+  <li>🗒️ Booking Summary before confirmation</li>
 </ul></ul></ul>
 
 <h2><ul>
@@ -40,6 +43,8 @@ The proposed system provides a centralized platform where players can check cour
 </h2></ul>
 
 <ul><ul><ul>
-  <li>📆 Court Availability Calendar</li>
-  <li>🕐 Date and Time Selection</li>
+  <li>📊 Booking Management Dashboard</li>
+  <li>🕐 Payment Verification</li>
+  <li>🛠️ Court Maintenance</li>
+  <li>🏓 Equipment Rental Tracking</li>
 </ul></ul></ul>
