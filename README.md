@@ -50,3 +50,11 @@ The proposed system provides a centralized platform where players can check cour
 </ul></ul></ul>
 
 ## 💻 Technical Stack
+
+| Icon |                       Technology Stack                 |                            Purpose                  |
+|:---:|:---:|:---:|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="30"> | **HTML5** | Used to build the main structure of the Pickle Grove Website|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="30"> | **CSS3** | Used to design modern and simple pages using the colors of The Pickle Grove|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="30"> | **JavaScript** | Used to handle interactive features like picking time slot, choosing paddle rentals and computing total cost instantly|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" width="30"> | **Figma** | Used to design the screen layouts and wireframes|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="30"> | **GitHub** | Used to store and share the project file as a team|
