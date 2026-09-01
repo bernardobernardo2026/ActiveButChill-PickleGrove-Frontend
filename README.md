@@ -6,10 +6,16 @@
   <img width="350" height="350" alt="Image" src="https://github.com/user-attachments/assets/a758129e-46c8-4e35-9887-11356b973b5a" />
 </p>
 
-<h3 align ="center">
+<h2 align ="center">
   Web-based Reservation and Management System for
   
   The Pickle Grove - Frontend Setup
-</h3>
+</h2>
 
-## Description
+## 📌 Description
+
+The <b> Pickle Grove Web-Based Pickleball Court Reservation and Management System</b> is a <b> web-based </b> project designed for The Pickle Grove, a pickleball sports court located in <b> Tiaong, Baliuag, Bulacan</b>. The system is created to improve the current reservation process and help the court managers handle daily bookings in a more organized and efficient way.
+
+Currently, players make reservations through Facebook Messenger. Court managers manually check available schedules, check payment, and record paddle rentals. These manual processes can cause delays, especially when many customers are making reservations at the same time. There is also a risk of double bookings and difficulty in keeping track of equipment rentals.
+
+The proposed system provides a centralized platform where players can check court availability and make reservations more conveniently, while court managers can manage bookings and schedules through an admin interface.
