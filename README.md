@@ -23,7 +23,7 @@ The proposed system provides a centralized platform where players can check cour
 ## 🔑 Key Features
 
 <h2><ul>
-  <img width="30" height="30"
+  <img width="40" height="40"
        src="https://github.com/user-attachments/assets/e1fffc32-8daa-4d6f-b95f-e5ac316b6066"
        alt="Player Icon">
   Player Features
