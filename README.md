@@ -32,6 +32,7 @@ The proposed system provides a centralized platform where players can check cour
 <ul><ul><ul>
   <li>🗓️ Court Availability Calendar</li>
   <li>🕐 Date and Time Selection</li>
+  <li><img width="25" height="25" alt="Image" src="https://github.com/user-attachments/assets/06cad6d6-ffb9-49b5-a9d0-0d2ea7ae754d" /></li>
 </ul></ul></ul>
 
 <h2><ul>
