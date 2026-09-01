@@ -61,4 +61,13 @@ The proposed system provides a centralized platform where players can check cour
 
 | Name| Role    |
 |:---:|:---:|
-| [**Bernardo Bernardo**](https://github.com/bernardobernardo2026) | Project Manager |
+| [**Bernardo, Bernardo**](https://github.com/bernardobernardo2026) | Project Manager |
+| [**Alfonso, Kim Tracey**](https://github.com/bernardobernardo2026) | Front-end Developer |
+| [**Baltazar, James Baron**](https://github.com/bernardobernardo2026) | Lead Front-end Developer |
+| [**Cadorniga, Julie Ann**](https://github.com/julieann94) | Assistant UI/UX Designer |
+| [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
+| [**Paraon, Rae Nicole**](https://github.com/Raeni-paraon) | Technical Writer |
+| [**Tagob, Marian**](https://github.com/mariantagobs) | Lead UI/UX Designer |
+
+
+
