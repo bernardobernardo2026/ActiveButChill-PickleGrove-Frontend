@@ -44,7 +44,7 @@ The proposed system provides a centralized platform where players can check cour
 
 <ul><ul><ul>
   <li>📊 Booking Management Dashboard</li>
-  <li>🕐 Payment Verification</li>
+  <li><img width="20" height="20" alt="Image" src="https://github.com/user-attachments/assets/2ee9a55a-7c48-4c82-9d72-546bae51c334" /> Payment Verification</li>
   <li>🛠️ Court Maintenance</li>
   <li>🏓 Equipment Rental Tracking</li>
 </ul></ul></ul>
