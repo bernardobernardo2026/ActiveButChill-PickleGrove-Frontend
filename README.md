@@ -48,3 +48,5 @@ The proposed system provides a centralized platform where players can check cour
   <li>🛠️ Court Maintenance</li>
   <li>🏓 Equipment Rental Tracking</li>
 </ul></ul></ul>
+
+## 💻 Technical Stack
