@@ -1,4 +1,4 @@
-t<h1 align ="center">
+<h1 align ="center">
   ActiveButChill-PickleGrove-Frontend
 </h1>
 
@@ -57,17 +57,17 @@ The proposed system provides a centralized platform where players can check cour
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="30"> | **CSS3** | Used to design modern and simple pages using the colors of The Pickle Grove|
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="30"> | **JavaScript** | Used to handle interactive features like picking time slot, choosing paddle rentals and computing total cost instantly|
 
-## Team Member List
+## 🧑‍💻Team Members List
 
-| Name| Role    |
-|:---:|:---:|
-| [**Bernardo, Bernardo**](https://github.com/bernardobernardo2026) | Project Manager |
-| [**Alfonso, Kim Tracey**](https://github.com/tracey-dev0829) | Front-end Developer |
-| [**Baltazar, James Baron**](https://github.com/bernardobernardo2026) | Lead Front-end Developer |
-| [**Cadorniga, Julie Ann**](https://github.com/julieann94) | Assistant UI/UX Designer |
-| [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
-| [**Paraon, Rae Nicole**](https://github.com/Raeni-paraon) | Technical Writer |
-| [**Tagob, Marian**](https://github.com/Marian-Tagob) | Lead UI/UX Designer |
+|Profile Picture| Name| Role    |
+|:---:|:---:|:--:|
+|<img width="100" height="100" alt="Image" src="https://github.com/user-attachments/assets/10c8f8b3-00b1-4033-87e3-06625f48f30d" />| [**Bernardo, Bernardo**](https://github.com/bernardobernardo2026) | Project Manager |
+| | [**Alfonso, Kim Tracey**](https://github.com/tracey-dev0829) | Front-end Developer |
+| | [**Baltazar, James Baron**](https://github.com/Ainain) | Lead Front-end Developer |
+| | [**Cadorniga, Julie Ann**](https://github.com/julieann94) | Assistant UI/UX Designer |
+| | [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
+| | [**Paraon, Rae Nicole**](https://github.com/Raeni-paraon) | Technical Writer |
+| | [**Tagob, Marian**](https://github.com/Marian-Tagob) | Lead UI/UX Designer |
 
 
 
