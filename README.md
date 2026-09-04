@@ -65,7 +65,7 @@ The proposed system provides a centralized platform where players can check cour
 | <img width="120" height="120" alt="Image" src="https://github.com/user-attachments/assets/622f300b-d5d1-4078-ae6e-6da8470a219b" />| [**Alfonso, Kim Tracey**](https://github.com/tracey-dev0829) | Front-end Developer |
 |<img width="130" height="140" alt="Image" src="https://github.com/user-attachments/assets/303e9110-67a7-4b6c-81a4-d0fce897730e" /> | [**Baltazar, James Baron**](https://github.com/Ainain) | Lead Front-end Developer |
 | <img width="130" height="130" alt="Image" src="https://github.com/user-attachments/assets/414658f6-a965-4131-a931-05d7152d5874" />| [**Cadorniga, Julie Ann**](https://github.com/julieann94) | Assistant UI/UX Designer |
-| | [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
+|<img width="120" height="120" alt="Image" src="https://github.com/user-attachments/assets/445739bd-f574-490f-81e2-9e8a0658c150" /> | [**Maraño, Kimrey Luis**](https://github.com/maranokimreyluis-hash) | Front-end Developer |
 |<img width="135" height="130" alt="Image" src="https://github.com/user-attachments/assets/ebfea4c8-f4a6-46cc-bab1-0ad9350c7819" /> | [**Paraon, Rae Nicole**](https://github.com/Raeni-paraon) | Technical Writer |
 | <img width="160" height="130" alt="Image" src="https://github.com/user-attachments/assets/2656db7a-5811-4575-9472-876e94328821" />| [**Tagob, Marian**](https://github.com/Marian-Tagob) | Lead UI/UX Designer |
 
