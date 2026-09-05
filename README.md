@@ -58,6 +58,16 @@ The proposed system provides a centralized platform where players can check cour
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="30"> | **JavaScript** | Used to handle interactive features like picking time slot, choosing paddle rentals and computing total cost instantly|
 
 ## 📒 Setup/Run Instructions
+1. **Clone the Repository**
+```bash
+  git clone https://github.com/bernardobernardo2026/ActiveButChill-PickleGrove-Frontend.git
+  ```
+2. **Navigate to Project Folder**
+```bash
+cd ActiveButChill-PickleGrove-Frontend
+```
+3. **Open the Project**
+   Double-click `index.html` (or open with Live Server in VS Code).
 
 ## 🧑‍💻Team Members List
 
