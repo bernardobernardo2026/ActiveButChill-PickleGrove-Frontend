@@ -10,7 +10,7 @@
 
 <nav>
     <div class="logo">
-        <img src="../assets/pickle logo.jpg" alt="Logo">
+        <img src="pickle logo.jpg" alt="Logo">
         <h2>The Pickle Grove</h2>
     </div>
     <div class="nav-links">
@@ -26,9 +26,10 @@
         <div class="date-bar">
             <div class="date-box">
                 &#128197;
-                <input type="text" id="selectedDateInput" value="Selected Date:" readonly>
+                <input type="text" id="selectedDateInput" value="Selected Date: Aug 21, 2026" readonly>
             </div>
-            <button class="change-date-btn" onclick="alert('Open date picker here')">&#128197; Change Date</button>
+            <button class="change-date-btn" onclick="toggleDatePicker()">&#128197; Change Date</button>
+            <input type="date" id="datePickerInput" style="display:none;" onchange="applyDate(this.value)">
         </div>
 
         <table class="schedule-table">
@@ -37,17 +38,62 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="time-col">10:00PM</td>
+                    <td class="time-col">7:00AM</td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                 </tr>
                 <tr>
-                    <td class="time-col">11:00PM</td>
-                    <td><div class="status selected-slot" onclick="selectSlot(this)">Selected</div></td>
+                    <td class="time-col">8:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                 </tr>
                 <tr>
-                    <td class="time-col">12:00AM</td>
+                    <td class="time-col">9:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">10:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">11:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">12:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">1:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">2:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">3:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">4:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">5:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">6:00PM</td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                 </tr>
@@ -65,6 +111,31 @@
                     <td class="time-col">9:00PM</td>
                     <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                     <td><div class="status booked">BOOKED</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">10:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">11:00PM</td>
+                    <td><div class="status selected-slot" onclick="selectSlot(this)">Selected</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">12:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">1:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">2:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
                 </tr>
             </tbody>
         </table>
