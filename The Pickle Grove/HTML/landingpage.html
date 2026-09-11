@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page - The Pickle Ball Grove</title>
     <link rel="icon" type="image/jpg" href="pickle logo.jpg">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../CSS/style.css">
 </head>
 
 <body>
     <nav>
         <div class="logo">
-            <img src="pickle logo.jpg" alt="Logo">
+            <img src="../assets/pickle logo.jpg" alt="Logo">
             <h2>The Pickle Grove</h2>
         </div>
 
         <div class="nav-links">
-            <a class="link" id="home" href="#">Home</a>
-            <a class="link" id="schedule" href="#">Schedule</a>
+            <a class="link" id="home" href="landingpage.html">Home</a>
+            <a class="link" id="schedule" href="schedule.html">Schedule</a>
             <button class="logout">Logout</button>
             <button class="icon-btn">?</button>
             <button class="icon-btn">i</button>
@@ -26,9 +26,9 @@
 
     <h3 class="Pickle">Pickleball Scheduling Made Simple</h3>
 
-    <button class="Book">Book Your Court</button>
+    <button class="Book" onclick="window.location.href='schedule.html'">Book Your Court</button>
 
-    <img class="court" src="court.jpg" alt="Court">
+    <img class="court" src="../assets/court.jpg" alt="Court">
 
     <div class="availability-section">
         <div class="section-header">
@@ -182,5 +182,6 @@
   </div>
 </footer>
 
+<script src="../JavaScript/script.js"></script>
 </body>
 </html>

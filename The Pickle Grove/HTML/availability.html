@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Availability - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="../assets/pickle logo.jpg logo.jpg" alt="Logo">
+        <h2>The Pickle Grove</h2>
+    </div>
+    <div class="nav-links">
+        <a class="link" id="home" href="landingpage.html">Home</a>
+        <a class="link" id="schedule" href="schedule.html">Schedule</a>
+        <button class="logout">Logout</button>
+    </div>
+</nav>
+
+<div class="availability-wrap">
+    <h3>Court Availability</h3>
+    <p style="color:#666; font-size:14px; margin-top:-8px;">View available court schedule and select your preferred to book.</p>
+
+    <div class="availability-controls">
+        <div class="control-card">
+            <h4>Court</h4>
+            <div class="pill-group">
+                <button onclick="setCourt(1, this)" class="active-court">Court 1</button>
+                <button onclick="setCourt(2, this)">Court 2</button>
+            </div>
+        </div>
+        <div class="control-card">
+            <h4>Court Status</h4>
+            <div class="status-legend">
+                <span><span class="status-dot available"></span>Available/Open</span>
+                <span><span class="status-dot booked"></span>Booked</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-card">
+        <div class="calendar-header">
+            <button onclick="alert('Previous month')">&#8249;</button>
+            <strong>September, 2026</strong>
+            <button onclick="alert('Next month')">&#8250;</button>
+        </div>
+        <div class="calendar-grid">
+            <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+            <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+
+            <div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div>
+            <div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div>
+            <div class="day-cell" onclick="pickDay(this)">1</div>
+
+            <div class="day-cell" onclick="pickDay(this)">2</div>
+            <div class="day-cell" onclick="pickDay(this)">3</div>
+            <div class="day-cell" onclick="pickDay(this)">4</div>
+            <div class="day-cell" onclick="pickDay(this)">5</div>
+            <div class="day-cell" onclick="pickDay(this)">6</div>
+            <div class="day-cell" onclick="pickDay(this)">7</div>
+            <div class="day-cell" onclick="pickDay(this)">8</div>
+
+            <div class="day-cell" onclick="pickDay(this)">9</div>
+            <div class="day-cell" onclick="pickDay(this)">10</div>
+            <div class="day-cell" onclick="pickDay(this)">11</div>
+            <div class="day-cell" onclick="pickDay(this)">12</div>
+            <div class="day-cell" onclick="pickDay(this)">13</div>
+            <div class="day-cell" onclick="pickDay(this)">14</div>
+            <div class="day-cell" onclick="pickDay(this)">15</div>
+
+            <div class="day-cell" onclick="pickDay(this)">16</div>
+            <div class="day-cell" onclick="pickDay(this)">17</div>
+            <div class="day-cell" onclick="pickDay(this)">18</div>
+            <div class="day-cell" onclick="pickDay(this)">19</div>
+            <div class="day-cell" onclick="pickDay(this)">20</div>
+            <div class="day-cell booked" onclick="pickDay(this)">21</div>
+            <div class="day-cell" onclick="pickDay(this)">22</div>
+
+            <div class="day-cell" onclick="pickDay(this)">23</div>
+            <div class="day-cell booked" onclick="pickDay(this)">24</div>
+            <div class="day-cell booked" onclick="pickDay(this)">25</div>
+            <div class="day-cell" onclick="pickDay(this)">26</div>
+            <div class="day-cell booked" onclick="pickDay(this)">27</div>
+            <div class="day-cell" onclick="pickDay(this)">28</div>
+            <div class="day-cell" onclick="pickDay(this)">29</div>
+
+            <div class="day-cell" onclick="pickDay(this)">30</div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Warning modal for booked date -->
+<div class="modal-overlay" id="warningModal">
+    <div class="modal-box">
+        <div class="modal-icon error">&#128683;</div>
+        <h3>Cannot be selected</h3>
+        <p>The selected date is already booked. Please try an alternative date.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('warningModal')">Go Back</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

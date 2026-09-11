@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Schedule/Booking Summary - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="../assets/pickle logo.jpg" alt="Logo">
+        <h2>The Pickle Grove</h2>
+    </div>
+    <div class="nav-links">
+        <a class="link" id="home" href="landingpage.html">Home</a>
+        <a class="link" id="schedule" href="schedule.html">Schedule</a>
+        <button class="logout">&#8674; Logout</button>
+    </div>
+</nav>
+
+<div class="booking-layout">
+    <div class="booking-left">
+        <a href="rules.html" style="display:inline-block; margin-bottom:10px; color:#1F4D32; font-size:13px; text-decoration:underline;">View Court Rules and Info</a>
+        <div class="date-bar">
+            <div class="date-box">
+                &#128197;
+                <input type="text" id="selectedDateInput" value="Selected Date:" readonly>
+            </div>
+            <button class="change-date-btn" onclick="alert('Open date picker here')">&#128197; Change Date</button>
+        </div>
+
+        <table class="schedule-table">
+            <thead>
+                <tr><th>Time</th><th>Court 1</th><th>Court 2</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="time-col">10:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">11:00PM</td>
+                    <td><div class="status selected-slot" onclick="selectSlot(this)">Selected</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">12:00AM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">7:00PM</td>
+                    <td><div class="status booked">BOOKED</div></td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">8:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status booked">BOOKED</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">9:00PM</td>
+                    <td><div class="status available" onclick="selectSlot(this)">+</div></td>
+                    <td><div class="status booked">BOOKED</div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="booking-right">
+        <div class="summary-section">
+            <h4>Booking Summary</h4>
+            <div class="muted">Review your selection before confirming.</div>
+        </div>
+
+        <div class="summary-row"><strong>Court 1</strong><span>xxx.00</span></div>
+        <div class="summary-row" style="color:#888; font-size:12px;"><span>Aug 21, 2026 &bull; 11PM - 12:00 AM</span></div>
+
+        <hr class="summary-divider">
+
+        <div class="summary-row"><strong>Equipment Rental</strong><span>xxx.00</span></div>
+        <div class="summary-row" style="color:#888; font-size:12px;"><span>2 Paddles, 4 Balls</span></div>
+
+        <hr class="summary-divider">
+
+        <div class="summary-label">Add Equipment</div>
+        <div class="qty-row">
+            <span>Paddles<br><small style="color:#999;">xx.00 each</small></span>
+            <div class="qty-control">
+                <button onclick="changeQty('paddleQty', -1)">-</button>
+                <span id="paddleQty">2</span>
+                <button onclick="changeQty('paddleQty', 1)">+</button>
+            </div>
+        </div>
+        <div class="qty-row">
+            <span>Balls<br><small style="color:#999;">xx.00 each</small></span>
+            <div class="qty-control">
+                <button onclick="changeQty('ballQty', -1)">-</button>
+                <span id="ballQty">0</span>
+                <button onclick="changeQty('ballQty', 1)">+</button>
+            </div>
+        </div>
+
+        <hr class="summary-divider">
+
+        <div class="summary-label">Payment Method</div>
+        <div class="payment-row"><span>G-Cash</span><input type="checkbox" name="payment"></div>
+        <div class="payment-row"><span>Paymaya</span><input type="checkbox" name="payment"></div>
+
+        <div class="total-row"><span>Total</span><span>xxx.00</span></div>
+
+        <button class="Book" style="margin-top:20px; width:100%;" onclick="openModal('confirmModal')">Confirm Booking</button>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Confirm Booking Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#128197;</div>
+        <h3>Confirm Booking</h3>
+        <p>Please review your booking details before confirming.</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            <button class="btn-primary" onclick="closeModal('confirmModal'); openModal('successModal')">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Confirm successfully!</h3>
+        <p>Your confirmation has been receive. Thank you!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('successModal'); window.location.href='receipt.html'">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Success Modal -->
+<div class="modal-overlay" id="cancelModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Success</h3>
+        <p>Canceled successfully!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('cancelModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>
