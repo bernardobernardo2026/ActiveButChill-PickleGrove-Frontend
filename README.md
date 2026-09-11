@@ -34,7 +34,6 @@ The proposed system provides a centralized platform where players can check cour
   <li>🕐 Date and Time Selection</li>
   <li><img width="20" height="20" alt="Image" src="https://github.com/user-attachments/assets/1c6dd46c-1e41-4889-ad1d-1b68a17e5633" /> Automatic Fee Calculation </li>
   <li>🏓 Paddle Rental Selection</li>
-  <li>🥤 Add food and drinks to reservation</li>
   <li>🗒️ Booking Summary before confirmation</li>
 </ul></ul></ul>
 
