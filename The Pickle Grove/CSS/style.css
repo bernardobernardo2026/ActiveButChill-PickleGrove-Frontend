@@ -738,3 +738,156 @@ a:hover{
     border-radius: 6px;
     cursor: pointer;
 }
+
+/* ===================================================== */
+/* ===== RESPONSIVE / MOBILE SUPPORT ===================== */
+/* ===================================================== */
+
+/* ---- Tablet (max-width: 900px) ---- */
+@media (max-width: 900px) {
+    .booking-layout {
+        flex-direction: column;
+        padding: 15px;
+    }
+    .booking-right {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .admin-layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 15px;
+    }
+    .sidebar .logo {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .sidebar-btn, .sidebar-logout {
+        margin-bottom: 0;
+        flex: 1 1 auto;
+        text-align: center;
+    }
+    .content-area {
+        padding: 20px;
+    }
+    .court {
+        margin-left: 0;
+        width: 92%;
+    }
+    .availability-controls {
+        flex-direction: column;
+    }
+    .calendar-grid {
+        gap: 4px;
+    }
+    .calendar-grid .day-cell {
+        padding: 6px 0;
+        font-size: 12px;
+    }
+    .rules-wrap, .help-wrap, .availability-wrap, .guide-wrap {
+        padding: 15px;
+    }
+}
+
+/* ---- Mobile (max-width: 600px) ---- */
+@media (max-width: 600px) {
+    nav {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 15px 10px;
+    }
+    .nav-links {
+        gap: 12px;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .logo h2 {
+        font-size: 15px;
+    }
+
+    .Pickle {
+        font-size: 20px;
+        margin-top: 25px;
+    }
+    .court {
+        width: 94%;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        max-height: 250px;
+    }
+
+    /* Tables become horizontally scrollable rather than squeezed */
+    .schedule-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .schedule-table thead, .schedule-table tbody, .schedule-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .booking-right {
+        padding: 15px;
+    }
+    .date-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .footer-copyright {
+        text-align: center;
+    }
+
+    .modal-box {
+        width: 85%;
+        padding: 20px;
+    }
+
+    .sidebar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sidebar-btn, .sidebar-logout {
+        width: 100%;
+    }
+    .content-topbar {
+        justify-content: center;
+    }
+
+    .form-card, .settings-card {
+        padding: 15px;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(28px, 1fr));
+    }
+    .calendar-header strong {
+        font-size: 14px;
+    }
+
+    .receipt-card {
+        padding: 20px;
+    }
+
+    .rules-wrap h3, .availability-wrap h3, .help-wrap h3 {
+        font-size: 18px;
+    }
+}
