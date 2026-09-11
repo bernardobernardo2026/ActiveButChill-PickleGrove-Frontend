@@ -28,11 +28,11 @@ main-container {
     align-items: center;
     gap: 35px;
 }
-#home{
+.link.active-link{
     display: inline-block;
     text-decoration: none;
-    border-bottom: 1px solid white !important;
-    padding-bottom: 4px
+    border-bottom: 1px solid white;
+    padding-bottom: 4px;
 }
 .icon-btn {
     width: 25px;
@@ -488,6 +488,13 @@ a:hover{
     align-items: center;
     gap: 6px;
     font-size: 14px;
+}
+#datePickerInput {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    margin-left: 10px;
 }
 .summary-divider {
     border: none;
