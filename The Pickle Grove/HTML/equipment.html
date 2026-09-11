@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment Rental - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+    <div class="sidebar">
+        <div class="logo">
+            <img src="pickle logo.jpg" alt="Logo">
+            <h2 style="font-size:16px;">The Pickle Grove</h2>
+        </div>
+        <button class="sidebar-btn">Dashboard</button>
+        <button class="sidebar-btn">Calendar</button>
+        <button class="sidebar-btn">Bookings</button>
+        <button class="sidebar-btn active">Equipment Rental</button>
+        <button class="sidebar-logout">Logout</button>
+    </div>
+
+    <div class="content-area">
+        <div class="content-topbar">&#128276; &#128100; &#9881;</div>
+        <h2>Equipment Rental</h2>
+        <p class="subtitle">View and monitor equipment rentals.</p>
+
+        <div style="display:flex; gap:15px; margin-bottom:20px;">
+            <input type="text" placeholder="Search..." style="flex:2; padding:10px; border:1px solid #ccc; border-radius:6px;">
+            <input type="text" placeholder="Date" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+            <button class="btn-primary" style="max-width:150px;">+ New Rental</button>
+        </div>
+
+        <h4>Equipment Rental Records</h4>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button class="btn-secondary" style="max-width:80px;">All</button>
+            <button style="max-width:100px; background:white; border:1px solid #ccc; border-radius:6px; padding:8px 14px; cursor:pointer;">Upcoming</button>
+        </div>
+
+        <table class="schedule-table" style="text-align:left;">
+            <thead>
+                <tr><th>Name</th><th>Date</th><th>Equipment</th><th>Quantity</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>
