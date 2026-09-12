@@ -11,16 +11,16 @@
 <body>
     <nav>
         <div class="logo">
-            <img src="../assets/pickle logo.jpg" alt="Logo">
+            <img src="pickle logo.jpg" alt="Logo">
             <h2>The Pickle Grove</h2>
         </div>
 
         <div class="nav-links">
             <a class="link" id="home" href="landingpage.html">Home</a>
-            <a class="link" id="schedule" href="schedule.html">Schedule</a>
+            <a class="link" id="schedule" href="availability.html">Schedule</a>
             <button class="logout">Logout</button>
-            <button class="icon-btn">?</button>
-            <button class="icon-btn">i</button>
+            <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+            <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
         </div>
     </nav>
 
@@ -28,7 +28,7 @@
 
     <button class="Book" onclick="window.location.href='schedule.html'">Book Your Court</button>
 
-    <img class="court" src="../assets/court.jpg" alt="Court">
+    <img class="court" src="court.jpg" alt="Court">
 
     <div class="availability-section">
         <div class="section-header">
@@ -48,7 +48,7 @@
 
     <hr class="divider">
 
-    <table class="schedule-table">
+    <table class="schedule-table" id="liveAvailabilityTable">
         <thead>
             <tr>
                 <th>Time</th>
@@ -59,103 +59,98 @@
         <tbody>
             <tr>
                 <td class="time-col">7:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
-            </tr>
-            <tr>
-                <td class="time-col">7:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="7:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="7:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">8:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="8:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="8:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">9:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="9:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="9:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">10:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="10:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="10:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">11:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="11:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="11:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">12:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="12:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="12:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">1:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="1:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="1:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">2:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="2:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="2:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">3:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="3:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="3:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">5:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="5:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="5:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">6:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="6:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="6:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">7:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="7:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="7:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">8:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="8:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="8:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">9:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="9:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="9:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">10:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="10:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="10:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">11:00PM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="11:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="11:00PM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">12:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="12:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="12:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">1:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="1:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="1:00AM" data-court="2"></div></td>
             </tr>
             <tr>
                 <td class="time-col">2:00AM</td>
-                <td><div class="status available"></div></td>
-                <td><div class="status available"></div></td>
+                <td><div class="status available" data-time="2:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="2:00AM" data-court="2"></div></td>
             </tr>
 
 
