@@ -15,8 +15,10 @@
     </div>
     <div class="nav-links">
         <a class="link" id="home" href="landingpage.html">Home</a>
-        <a class="link" id="schedule" href="schedule.html">Schedule</a>
-        <button class="logout">Logout</button>
+        <a class="link" id="schedule" href="availability.html">Schedule</a>
+        <button class="logout" onclick="handleLogout()">Logout</button>
+        <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+        <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
     </div>
 </nav>
 
@@ -43,7 +45,7 @@
 
     <div class="calendar-card">
         <div class="calendar-header">
-            <button onclick="changeMonth(-1)">&#8249;</button>
+            <button id="calendarPrevBtn" onclick="changeMonth(-1)">&#8249;</button>
             <strong id="calendarMonthLabel">September, 2026</strong>
             <button onclick="changeMonth(1)">&#8250;</button>
         </div>
@@ -71,7 +73,7 @@
     <div class="modal-box">
         <div class="modal-icon error">&#128683;</div>
         <h3>Cannot be selected</h3>
-        <p>The selected date is already booked. Please try an alternative date.</p>
+        <p id="warningModalMessage">The selected date is already booked. Please try an alternative date.</p>
         <div class="modal-actions">
             <button class="btn-primary" onclick="closeModal('warningModal')">Go Back</button>
         </div>
