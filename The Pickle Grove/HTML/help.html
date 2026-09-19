@@ -10,15 +10,15 @@
 
 <nav>
     <div class="logo">
-        <img src="../assets/pickle logo.jpg" alt="Logo">
+        <img src="pickle logo.jpg" alt="Logo">
         <h2>The Pickle Grove</h2>
     </div>
     <div class="nav-links">
         <a class="link" id="home" href="landingpage.html">Home</a>
-        <a class="link" id="schedule" href="schedule.html">Schedule</a>
+        <a class="link" id="schedule" href="availability.html">Schedule</a>
         <button class="logout" onclick="openModal('logoutModal')">Logout</button>
-        <button class="icon-btn">?</button>
-        <button class="icon-btn">i</button>
+        <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+        <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
     </div>
 </nav>
 
@@ -28,7 +28,7 @@
             <h3 style="margin-bottom:2px;">Help &amp; Support</h3>
             <p class="subtitle">How can we help you?</p>
         </div>
-        <button class="btn-secondary" style="max-width:100px;">Guide</button>
+        <button class="btn-secondary" style="max-width:100px;" onclick="window.location.href='guide.html'">Guide</button>
     </div>
 
     <input class="help-search" type="text" placeholder="Search...">
