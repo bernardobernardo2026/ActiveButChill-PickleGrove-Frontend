@@ -22,18 +22,19 @@
 
         <div class="receipt-details">
             <div class="receipt-row"><span class="label">DATE</span><span class="label">CUSTOMER</span></div>
-            <div class="receipt-row"><span>August 29, 2026</span><span>Juan Dela Cruz</span></div>
+            <div class="receipt-row"><span id="receiptCreatedDate">-</span><span id="receiptCustomerName">-</span></div>
         </div>
 
         <div class="receipt-details">
             <div class="label">BOOKING DETAILS</div>
-            <div class="receipt-row"><span>Court:</span><span>Court 1</span></div>
-            <div class="receipt-row"><span>Date:</span><span>August 30, 2026</span></div>
-            <div class="receipt-row"><span>Time:</span><span>3:00 PM - 4:00 PM</span></div>
-            <div class="receipt-row"><span>Reference no:</span><span>#PG-10492</span></div>
+            <div id="receiptBookingRows">
+                <div class="receipt-row"><span>Court:</span><span>-</span></div>
+                <div class="receipt-row"><span>Date:</span><span>-</span></div>
+            </div>
+            <div class="receipt-row"><span>Reference no:</span><span id="receiptRefNo">-</span></div>
         </div>
 
-        <div class="receipt-total"><span>Total</span><span>&#8369;500.00</span></div>
+        <div class="receipt-total"><span>Total</span><span id="receiptTotal">&#8369;0.00</span></div>
     </div>
     <div class="modal-actions" style="margin-top:20px; gap:20px;">
         <button class="btn-secondary" onclick="openModal('doneModal')">Done</button>
