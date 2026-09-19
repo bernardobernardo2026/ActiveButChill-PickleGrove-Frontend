@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+<style>
+.auth-page {
+    background-image: url('pickle logo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+</style>
+</head>
+<body class="auth-page">
+
+<div class="auth-content">
+    <div class="auth-card">
+        <div class="auth-card-body">
+            <h2>The Pickle Grove</h2>
+            <div class="auth-sub">Welcome, Player!</div>
+
+            <form onsubmit="event.preventDefault(); attemptLogin();">
+                <div class="auth-field plain" style="margin-top:20px;">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="youraccount@example.com" required>
+                </div>
+                <div class="auth-field plain">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="" required>
+                </div>
+
+                <div class="auth-options-row">
+                    <label style="display:flex; align-items:center; gap:6px;">
+                        <input type="checkbox" onclick="togglePasswordVisibility('loginPassword')"> Show Password
+                    </label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="auth-btn">LOGIN</button>
+            </form>
+        </div>
+        <div class="auth-card-footer">
+            Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="loginSuccessModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Success</h3>
+        <p>Log in successfully!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="window.location.href='landingpage.html'">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Error modal -->
+<div class="modal-overlay" id="loginErrorModal">
+    <div class="modal-box">
+        <div class="modal-icon error" style="background:none; color:#d9534f; font-size:34px;">&#9888;</div>
+        <h3>Unable to log in</h3>
+        <p>An unexpected error occurred. Please try logging in again!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('loginErrorModal')">OK</button>
+        </div>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>
