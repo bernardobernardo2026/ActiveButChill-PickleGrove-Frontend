@@ -689,6 +689,12 @@ a:hover{
     background-color: #fce4d6;
     border: 1px solid #f4b08a;
 }
+.calendar-grid .day-cell.past {
+    background-color: #e6e6e6;
+    border: 1px solid #cccccc;
+    color: #999;
+    cursor: not-allowed;
+}
 .calendar-grid .day-cell.empty { background: transparent; border: none; cursor: default; }
 
 /* ===== Help & Support ===== */
@@ -1383,3 +1389,157 @@ a:hover{
 .notif-body .notif-title { font-weight: bold; font-size: 13px; color: #222; margin-bottom: 2px; }
 .notif-body .notif-desc { font-size: 12px; color: #555; margin-bottom: 2px; }
 .notif-time { font-size: 11px; color: #999; white-space: nowrap; }
+
+/* ===================================================== */
+/* ===== USER PROFILE / SETTINGS / MY BOOKINGS =========== */
+/* ===================================================== */
+.user-subheader {
+    background-color: #eaf3e4;
+    padding: 18px 30px;
+    border-bottom: 1px solid #d7e6cf;
+}
+.user-subheader-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-subheader-title a {
+    color: #1F4D32;
+    font-size: 20px;
+    text-decoration: none;
+}
+.user-subheader-title h2 {
+    color: #1F4D32;
+    font-size: 22px;
+    margin: 0;
+    padding: 0;
+}
+.user-subheader .subtitle {
+    color: #555;
+    font-size: 14px;
+    margin: 4px 0 0 32px;
+}
+.user-page-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 25px;
+}
+
+/* Profile page */
+.profile-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.profile-main-card {
+    flex: 2;
+    min-width: 320px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 25px;
+}
+.profile-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.profile-avatar-placeholder {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 26px;
+}
+.profile-avatar-row .name-email h4 { margin: 0 0 2px; }
+.profile-avatar-row .name-email p { margin: 0; color: #666; font-size: 13px; }
+.profile-side-col {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.profile-side-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.profile-side-card h4 {
+    margin: 0;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #222;
+}
+.profile-side-card .see-all-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #e9efe5;
+    padding: 12px 20px;
+    color: #1F4D32;
+    text-decoration: none;
+    font-size: 14px;
+    border-top: 1px solid #ddd;
+}
+.profile-side-card .see-all-link:hover { text-decoration: underline; }
+.profile-side-card .card-body { padding: 16px 20px; }
+.account-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 14px;
+}
+.account-status-row .status-active { color: #2e9e4f; font-weight: bold; }
+
+/* My Bookings page */
+.mybookings-tabs {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.mybookings-tabs span {
+    cursor: pointer;
+    color: #555;
+    padding-bottom: 4px;
+}
+.mybookings-tabs span.active {
+    color: #1F4D32;
+    font-weight: bold;
+    border-bottom: 2px solid #1F4D32;
+}
+.booking-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.booking-card .booking-info h4 { margin: 0 0 6px; color: #222; }
+.booking-card .booking-info p { margin: 2px 0; font-size: 14px; color: #333; }
+.booking-card .booking-total { color: #1F4D32; font-weight: bold; margin-top: 6px; }
+.booking-card .cancel-btn {
+    background: #1F4D32;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+}
