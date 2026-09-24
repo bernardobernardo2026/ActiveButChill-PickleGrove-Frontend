@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="pickle logo.jpg" alt="Logo">
+        <h2>The Pickle Grove</h2>
+    </div>
+    <div class="nav-links">
+        <a class="link" id="home" href="landingpage.html">Home</a>
+        <a class="link" id="schedule" href="availability.html">Schedule</a>
+        <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+        <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
+        <button class="icon-btn" onclick="window.location.href='myprofile.html'">&#9881;</button>
+        <button class="logout" onclick="handleLogout()">Logout</button>
+    </div>
+</nav>
+
+<div class="user-subheader">
+    <div class="user-subheader-title">
+        <a href="landingpage.html">&#8592;</a>
+        <h2>Profile</h2>
+    </div>
+    <p class="subtitle">Manage your account.</p>
+</div>
+
+<div class="user-page-wrap">
+    <div class="profile-layout">
+        <div class="profile-main-card">
+            <div class="profile-avatar-row">
+                <div class="profile-avatar-placeholder" id="profileAvatarPreview" onclick="document.getElementById('profilePhotoInput').click()" style="cursor:pointer; overflow:hidden;">&#128444;</div>
+                <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(this)">
+                <div class="name-email">
+                    <h4 id="profileDisplayName">Name</h4>
+                    <p id="profileDisplayEmail">Email</p>
+                </div>
+                <button class="btn-secondary" style="max-width:150px; margin-left:auto;" onclick="document.getElementById('profilePhotoInput').click()">Edit Profile</button>
+            </div>
+            <hr class="summary-divider">
+            <h4 style="margin-top:0;">Personal Information</h4>
+            <div class="form-group">
+                <input type="text" id="profileFullName" placeholder="Fullname">
+            </div>
+            <div class="form-group">
+                <input type="email" id="profileEmail" placeholder="Email Address">
+            </div>
+            <div class="form-group">
+                <input type="text" id="profileContact" placeholder="Contact no.">
+            </div>
+            <div class="form-group">
+                <input type="text" id="profileAddress" placeholder="Address">
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" style="max-width:150px;" onclick="saveProfileInfo()">Save Changes</button>
+            </div>
+        </div>
+
+        <div class="profile-side-col">
+            <div class="profile-side-card">
+                <h4>MY BOOKINGS</h4>
+                <a class="see-all-link" href="mybookings.html">See all <span>&#8594;</span></a>
+            </div>
+
+            <div class="profile-side-card">
+                <h4>ACCOUNT</h4>
+                <div class="card-body">
+                    <div class="account-status-row">
+                        <span>Password</span>
+                        <span>&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</span>
+                    </div>
+                    <div class="account-status-row">
+                        <span>Account Status</span>
+                        <span class="status-active">Active</span>
+                    </div>
+                    <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="openModal('changePasswordModal')">Change Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings" style="margin-top:35px;">
+        <h3 style="color:#1F4D32; margin-bottom:4px;">Settings</h3>
+        <p class="subtitle" style="margin-top:0;">Customize your settings</p>
+
+        <div class="settings-card" style="max-width:100%;">
+            <h3 style="text-transform:uppercase; font-size:13px; letter-spacing:0.5px;">Booking Notifications</h3>
+            <div class="settings-row">
+                <span>Booking Confirmation</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>Booking Reminder</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>Booking Updates</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>Payment Reminder</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row" style="border-bottom:none;">
+                <span>Schedule Changes</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box wide">
+        <h3>Change Password</h3>
+        <p>Update your account password to keep your account secure.</p>
+        <p id="passwordChangeError" style="display:none; color:#d9534f; font-size:13px; margin:-10px 0 15px;"></p>
+        <div class="form-group">
+            <label>CURRENT PASSWORD</label>
+            <input type="password" id="currentPasswordInput" placeholder="********">
+        </div>
+        <div class="form-group">
+            <label>NEW PASSWORD</label>
+            <input type="password" id="newPasswordInput" placeholder="********">
+        </div>
+        <div class="form-group">
+            <label>CONFIRM NEW PASSWORD</label>
+            <input type="password" id="confirmPasswordInput" placeholder="********">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('changePasswordModal')">Cancel</button>
+            <button class="btn-primary" onclick="handlePasswordChange()">Update Password</button>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="passwordDoneModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#128274;</div>
+        <h3>Change password successfully!</h3>
+        <p>Your password has been changed successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('passwordDoneModal')">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Profile saved modal -->
+<div class="modal-overlay" id="profileSavedModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Success</h3>
+        <p>Changes saved successfully!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('profileSavedModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>
