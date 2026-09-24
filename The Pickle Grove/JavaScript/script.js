@@ -861,3 +861,234 @@ function populateReceipt() {
         `<div class="receipt-row"><span>Date:</span><span>${bookingDateStr}</span></div>` + rowsHtml;
 }
 document.addEventListener('DOMContentLoaded', populateReceipt);
+
+// ===== Profile page: real persistence via localStorage =====
+const DEFAULT_PROFILE = { fullName: '', email: '', contact: '', address: '' };
+const DEFAULT_PASSWORD = 'password123'; // starting dummy password for this demo account
+
+function getUserProfile() {
+    try {
+        return JSON.parse(localStorage.getItem('pickleGroveUserProfile')) || DEFAULT_PROFILE;
+    } catch (e) {
+        return DEFAULT_PROFILE;
+    }
+}
+
+function getStoredPassword() {
+    return localStorage.getItem('pickleGroveUserPassword') || DEFAULT_PASSWORD;
+}
+
+// Fills the profile form + display name/email + saved photo, if any exist
+function loadProfilePage() {
+    const nameInput = document.getElementById('profileFullName');
+    if (!nameInput) return; // only run on myprofile.html
+
+    const profile = getUserProfile();
+    nameInput.value = profile.fullName;
+    document.getElementById('profileEmail').value = profile.email;
+    document.getElementById('profileContact').value = profile.contact;
+    document.getElementById('profileAddress').value = profile.address;
+
+    document.getElementById('profileDisplayName').textContent = profile.fullName || 'Name';
+    document.getElementById('profileDisplayEmail').textContent = profile.email || 'Email';
+
+    const savedPhoto = localStorage.getItem('pickleGroveUserPhoto');
+    if (savedPhoto) {
+        const preview = document.getElementById('profileAvatarPreview');
+        preview.innerHTML = '';
+        preview.style.backgroundImage = "url('" + savedPhoto + "')";
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+    }
+}
+document.addEventListener('DOMContentLoaded', loadProfilePage);
+
+// Saves the Personal Information fields and updates the display name/email immediately
+function saveProfileInfo() {
+    const profile = {
+        fullName: document.getElementById('profileFullName').value.trim(),
+        email: document.getElementById('profileEmail').value.trim(),
+        contact: document.getElementById('profileContact').value.trim(),
+        address: document.getElementById('profileAddress').value.trim()
+    };
+    localStorage.setItem('pickleGroveUserProfile', JSON.stringify(profile));
+
+    document.getElementById('profileDisplayName').textContent = profile.fullName || 'Name';
+    document.getElementById('profileDisplayEmail').textContent = profile.email || 'Email';
+
+    openModal('profileSavedModal');
+}
+
+// Reads the chosen image file and stores it as the profile photo
+function handleProfilePhotoUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const dataUrl = e.target.result;
+        localStorage.setItem('pickleGroveUserPhoto', dataUrl);
+
+        const preview = document.getElementById('profileAvatarPreview');
+        preview.innerHTML = '';
+        preview.style.backgroundImage = "url('" + dataUrl + "')";
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+    };
+    reader.readAsDataURL(file);
+}
+
+// Validates and applies a password change against the stored dummy password
+function handlePasswordChange() {
+    const currentInput = document.getElementById('currentPasswordInput');
+    const newInput = document.getElementById('newPasswordInput');
+    const confirmInput = document.getElementById('confirmPasswordInput');
+    const errorEl = document.getElementById('passwordChangeError');
+
+    const showError = (message) => {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+    };
+    errorEl.style.display = 'none';
+
+    if (currentInput.value !== getStoredPassword()) {
+        showError('Current password is incorrect.');
+        return;
+    }
+    if (!newInput.value || newInput.value.length < 6) {
+        showError('New password must be at least 6 characters.');
+        return;
+    }
+    if (newInput.value !== confirmInput.value) {
+        showError('New password and confirmation do not match.');
+        return;
+    }
+
+    localStorage.setItem('pickleGroveUserPassword', newInput.value);
+    currentInput.value = '';
+    newInput.value = '';
+    confirmInput.value = '';
+
+    closeModal('changePasswordModal');
+    openModal('passwordDoneModal');
+}
+
+// ===== My Bookings page: real data, grouped one card per (booking, court), with real cancellation =====
+function timeLabelToHour24(label) {
+    const match = label.match(/(\d+):00(AM|PM)/);
+    let hour = parseInt(match[1]);
+    const period = match[2];
+    if (period === 'AM' && hour === 12) hour = 0;
+    if (period === 'PM' && hour !== 12) hour += 12;
+    return hour;
+}
+
+function hour24ToLabel(hour) {
+    const h = ((hour % 24) + 24) % 24;
+    const period = h < 12 ? 'AM' : 'PM';
+    let displayHour = h % 12;
+    if (displayHour === 0) displayHour = 12;
+    return displayHour + ':00 ' + period;
+}
+
+// Builds one card per (booking record, court) combo, since a single checkout can span both courts
+function getMyBookingsCards() {
+    const bookings = getBookings();
+    const cards = [];
+    bookings.forEach(b => {
+        const courts = Array.from(new Set(b.slots.map(s => s.court)));
+        courts.forEach(court => {
+            const hours = b.slots.filter(s => s.court === court).map(s => timeLabelToHour24(s.time)).sort((a, c) => a - c);
+            const startHour = hours[0];
+            const endHour = hours[hours.length - 1] + 1;
+            const dateObj = new Date(b.year, b.month, b.day);
+            cards.push({
+                recordId: b.id,
+                court: court,
+                dateObj: dateObj,
+                dateStr: dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                timeRangeStr: hour24ToLabel(startHour) + ' - ' + hour24ToLabel(endHour),
+                paddles: b.paddles,
+                total: b.total
+            });
+        });
+    });
+    return cards;
+}
+
+let myBookingsFilter = 'today';
+function setMyBookingsFilter(filter, el) {
+    myBookingsFilter = filter;
+    el.parentElement.querySelectorAll('span').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    renderMyBookings();
+}
+
+function renderMyBookings() {
+    const list = document.getElementById('myBookingsList');
+    if (!list) return; // only run on mybookings.html
+
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    let cards = getMyBookingsCards();
+
+    cards = cards.filter(c => {
+        const cardDate = new Date(c.dateObj.getFullYear(), c.dateObj.getMonth(), c.dateObj.getDate());
+        if (myBookingsFilter === 'today') return cardDate.getTime() === today.getTime();
+        if (myBookingsFilter === 'upcoming') return cardDate.getTime() > today.getTime();
+        if (myBookingsFilter === 'history') return cardDate.getTime() < today.getTime();
+        return true;
+    });
+
+    cards.sort((a, b) => myBookingsFilter === 'history' ? (b.dateObj - a.dateObj) : (a.dateObj - b.dateObj));
+
+    if (cards.length === 0) {
+        list.innerHTML = '<p style="color:#888; text-align:center; padding:30px 0;">No bookings found for this tab.</p>';
+        return;
+    }
+
+    list.innerHTML = cards.map(c => `
+        <div class="booking-card">
+            <div class="booking-info">
+                <h4>Court ${c.court}</h4>
+                <p>Date: ${c.dateStr}</p>
+                <p>Time: ${c.timeRangeStr}</p>
+                <p>Paddle Rental: ${c.paddles}</p>
+                <p class="booking-total">Total Amount: \u20B1${c.total.toFixed(2)}</p>
+            </div>
+            <button class="cancel-btn" onclick="openCancelModal(${c.recordId}, '${c.court}')">Cancel Booking</button>
+        </div>
+    `).join('');
+}
+document.addEventListener('DOMContentLoaded', renderMyBookings);
+
+let pendingCancelRecordId = null;
+let pendingCancelCourt = null;
+function openCancelModal(recordId, court) {
+    pendingCancelRecordId = recordId;
+    pendingCancelCourt = court;
+    openModal('cancelBookingModal');
+}
+
+function confirmCancelBooking() {
+    const bookings = getBookings();
+    const idx = bookings.findIndex(b => b.id === pendingCancelRecordId);
+    if (idx === -1) { closeModal('cancelBookingModal'); return; }
+
+    const record = bookings[idx];
+    const remainingSlots = record.slots.filter(s => s.court !== pendingCancelCourt);
+
+    if (remainingSlots.length === 0) {
+        bookings.splice(idx, 1); // that was the whole booking - remove it entirely
+    } else {
+        // Recompute total for whatever's left (remaining slot rates + the original equipment cost)
+        const equipmentCost = (record.paddles * 50) + (record.balls * 20);
+        const remainingSubtotal = remainingSlots.reduce((sum, s) => sum + getSlotRate(s.time), 0);
+        record.slots = remainingSlots;
+        record.total = remainingSubtotal + equipmentCost;
+    }
+
+    localStorage.setItem('pickleGroveBookings', JSON.stringify(bookings));
+    closeModal('cancelBookingModal');
+    openModal('cancelSuccessModal');
+    renderMyBookings();
+}
