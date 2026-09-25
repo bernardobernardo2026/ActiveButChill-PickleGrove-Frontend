@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Schedule/Booking Summary - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="pickle logo.jpg" alt="Logo">
+        <h2>The Pickle Grove</h2>
+    </div>
+    <div class="nav-links">
+        <a class="link" id="home" href="landingpage.html">Home</a>
+        <a class="link" id="schedule" href="availability.html">Schedule</a>
+        <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+        <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
+            <button class="icon-btn" onclick="window.location.href='myprofile.html'">&#9881;</button>
+        <button class="logout" onclick="handleLogout()">&#8674; Logout</button>
+    </div>
+</nav>
+
+<div class="booking-layout">
+    <div class="booking-left">
+        <a href="rules.html" style="display:inline-block; margin-bottom:10px; color:#1F4D32; font-size:13px; text-decoration:underline;">View Court Rules and Info</a>
+
+        <div class="date-bar" style="position:relative;">
+            <div class="date-box">
+                &#128197;
+                <input type="text" id="selectedDateInput" value="Selected Date:" readonly>
+            </div>
+            <button class="change-date-btn" onclick="toggleMiniCalendar()">&#128197; Change Date</button>
+
+            <div id="miniCalendarPopup" style="display:none; position:absolute; top:110%; right:0; z-index:50; background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:15px; width:260px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; color:#1F4D32; font-weight:bold;">
+                    <span style="cursor:pointer;" onclick="changeMiniCalendarMonth(-1)">&#8249;</span>
+                    <span id="miniCalendarLabel">September 2026</span>
+                    <span style="cursor:pointer;" onclick="changeMiniCalendarMonth(1)">&#8250;</span>
+                </div>
+                <div id="miniCalendarGrid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; font-size:13px;"></div>
+            </div>
+        </div>
+
+        <table class="schedule-table">
+            <thead>
+                <tr><th>Time</th><th>Court 1</th><th>Court 2</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="time-col">7:00AM - 8:00AM</td>
+                    <td><div class="status available" data-time="7:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="7:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">8:00AM - 9:00AM</td>
+                    <td><div class="status available" data-time="8:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="8:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">9:00AM - 10:00AM</td>
+                    <td><div class="status available" data-time="9:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="9:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">10:00AM - 11:00AM</td>
+                    <td><div class="status available" data-time="10:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="10:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">11:00AM - 12:00PM</td>
+                    <td><div class="status available" data-time="11:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="11:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">12:00PM - 1:00PM</td>
+                    <td><div class="status available" data-time="12:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="12:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">1:00PM - 2:00PM</td>
+                    <td><div class="status available" data-time="1:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="1:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">2:00PM - 3:00PM</td>
+                    <td><div class="status available" data-time="2:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="2:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">3:00PM - 4:00PM</td>
+                    <td><div class="status available" data-time="3:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="3:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">4:00PM - 5:00PM</td>
+                    <td><div class="status available" data-time="4:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="4:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">5:00PM - 6:00PM</td>
+                    <td><div class="status available" data-time="5:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="5:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">6:00PM - 7:00PM</td>
+                    <td><div class="status available" data-time="6:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="6:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">7:00PM - 8:00PM</td>
+                    <td><div class="status available" data-time="7:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="7:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">8:00PM - 9:00PM</td>
+                    <td><div class="status available" data-time="8:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="8:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">9:00PM - 10:00PM</td>
+                    <td><div class="status available" data-time="9:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="9:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">10:00PM - 11:00PM</td>
+                    <td><div class="status available" data-time="10:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="10:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">11:00PM - 12:00AM</td>
+                    <td><div class="status available" data-time="11:00PM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="11:00PM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">12:00AM - 1:00AM</td>
+                    <td><div class="status available" data-time="12:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="12:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">1:00AM - 2:00AM</td>
+                    <td><div class="status available" data-time="1:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="1:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+                <tr>
+                    <td class="time-col">2:00AM - 3:00AM</td>
+                    <td><div class="status available" data-time="2:00AM" data-court="1" onclick="toggleSlot(this)">+</div></td>
+                    <td><div class="status available" data-time="2:00AM" data-court="2" onclick="toggleSlot(this)">+</div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="booking-right">
+        <div class="summary-section">
+            <h4>Booking Summary</h4>
+            <div class="muted">Review your selection before confirming.</div>
+            <div class="form-group" style="margin-top:12px;">
+                <label style="font-size:12px;">Full Name</label>
+                <input type="text" id="bookingCustomerName" placeholder="Juan Dela Cruz" style="padding:8px 10px; font-size:13px;">
+            </div>
+        </div>
+
+        <div id="selectedSlotsList">
+            <div class="muted" style="margin-bottom:10px;">No time slots selected yet. Click any open (+) slot on the left.</div>
+        </div>
+
+        <hr class="summary-divider">
+
+        <div class="summary-label">Add Equipment</div>
+        <div class="qty-row">
+            <span>Paddles<br><small style="color:#999;">&#8369;50.00 each</small></span>
+            <div class="qty-control">
+                <button onclick="changeQty('paddleQty', -1)">-</button>
+                <span id="paddleQty">0</span>
+                <button onclick="changeQty('paddleQty', 1)">+</button>
+            </div>
+        </div>
+        <div class="qty-row">
+            <span>Balls<br><small style="color:#999;">&#8369;20.00 each</small></span>
+            <div class="qty-control">
+                <button onclick="changeQty('ballQty', -1)">-</button>
+                <span id="ballQty">0</span>
+                <button onclick="changeQty('ballQty', 1)">+</button>
+            </div>
+        </div>
+
+        <hr class="summary-divider">
+
+        <div class="summary-label">Payment Method</div>
+        <div class="payment-row"><span>G-Cash</span><input type="checkbox" name="payment" onclick="enforceSinglePayment(this)"></div>
+        <div class="payment-row"><span>Paymaya</span><input type="checkbox" name="payment" onclick="enforceSinglePayment(this)"></div>
+
+        <div class="total-row"><span>Total</span><span id="totalPrice">&#8369;0.00</span></div>
+
+        <button class="Book" style="margin-top:20px; width:100%;" onclick="handleConfirmClick()">Confirm Booking</button>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Confirm Booking Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#128197;</div>
+        <h3>Confirm Booking</h3>
+        <p>Please review your booking details before confirming.</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            <button class="btn-primary" onclick="finalizeBooking(); closeModal('confirmModal'); openModal('successModal')">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Login required modal -->
+<div class="modal-overlay" id="loginRequiredModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#128274;</div>
+        <h3>Login Required</h3>
+        <p>You need to be logged in to book a court. Please log in to continue.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="window.location.href='login.html'">Log In</button>
+        </div>
+    </div>
+</div>
+
+<!-- No selection warning modal -->
+<div class="modal-overlay" id="noSelectionModal">
+    <div class="modal-box">
+        <div class="modal-icon error" style="background:none; color:#d9534f; font-size:34px;">&#9888;</div>
+        <h3>Nothing selected</h3>
+        <p>Please select at least one time slot before confirming your booking.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('noSelectionModal')">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Confirm successfully!</h3>
+        <p>Your confirmation has been receive. Thank you!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('successModal'); window.location.href='receipt.html'">OK</button>
+        </div>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

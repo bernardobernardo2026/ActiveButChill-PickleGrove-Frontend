@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page - The Pickle Ball Grove</title>
+    <link rel="icon" type="image/jpg" href="pickle logo.jpg">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <img src="pickle logo.jpg" alt="Logo">
+            <h2>The Pickle Grove</h2>
+        </div>
+
+        <div class="nav-links">
+            <a class="link" id="home" href="landingpage.html">Home</a>
+            <a class="link" id="schedule" href="availability.html">Schedule</a>
+            <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+            <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
+            <button class="icon-btn" onclick="window.location.href='myprofile.html'">&#9881;</button>
+            <button class="logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+
+    <h3 class="Pickle">Pickleball Scheduling Made Simple</h3>
+
+    <button class="Book" onclick="window.location.href='schedule.html'">Book Your Court</button>
+
+    <img class="court" src="court.jpg" alt="Court">
+
+    <div class="availability-section">
+        <div class="section-header">
+            <h4>Live Availability</h4>
+                <div class="legend">
+                <div class="legend-item">
+                    <span class="box-available"></span>
+                    <span>Available</span>
+                </div>
+  <div class="legend-item">
+    <span class="box-booked"></span>
+    <span>Booked</span>
+  </div>
+  <div class="legend-item">
+    <span class="box-passed"></span>
+    <span>Unavailable</span>
+  </div>
+</div>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <table class="schedule-table" id="liveAvailabilityTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Court 1</th>
+                <th>Court 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="time-col">7:00AM - 8:00AM</td>
+                <td><div class="status available" data-time="7:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="7:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">8:00AM - 9:00AM</td>
+                <td><div class="status available" data-time="8:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="8:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">9:00AM - 10:00AM</td>
+                <td><div class="status available" data-time="9:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="9:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">10:00AM - 11:00AM</td>
+                <td><div class="status available" data-time="10:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="10:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">11:00AM - 12:00PM</td>
+                <td><div class="status available" data-time="11:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="11:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">12:00PM - 1:00PM</td>
+                <td><div class="status available" data-time="12:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="12:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">1:00PM - 2:00PM</td>
+                <td><div class="status available" data-time="1:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="1:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">2:00PM - 3:00PM</td>
+                <td><div class="status available" data-time="2:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="2:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">3:00PM - 4:00PM</td>
+                <td><div class="status available" data-time="3:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="3:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">4:00PM - 5:00PM</td>
+                <td><div class="status available" data-time="4:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="4:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">5:00PM - 6:00PM</td>
+                <td><div class="status available" data-time="5:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="5:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">6:00PM - 7:00PM</td>
+                <td><div class="status available" data-time="6:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="6:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">7:00PM - 8:00PM</td>
+                <td><div class="status available" data-time="7:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="7:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">8:00PM - 9:00PM</td>
+                <td><div class="status available" data-time="8:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="8:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">9:00PM - 10:00PM</td>
+                <td><div class="status available" data-time="9:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="9:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">10:00PM - 11:00PM</td>
+                <td><div class="status available" data-time="10:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="10:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">11:00PM - 12:00AM</td>
+                <td><div class="status available" data-time="11:00PM" data-court="1"></div></td>
+                <td><div class="status available" data-time="11:00PM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">12:00AM - 1:00AM</td>
+                <td><div class="status available" data-time="12:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="12:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">1:00AM - 2:00AM</td>
+                <td><div class="status available" data-time="1:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="1:00AM" data-court="2"></div></td>
+            </tr>
+            <tr>
+                <td class="time-col">2:00AM - 3:00AM</td>
+                <td><div class="status available" data-time="2:00AM" data-court="1"></div></td>
+                <td><div class="status available" data-time="2:00AM" data-court="2"></div></td>
+            </tr>
+
+
+
+        </tbody>
+    </table>
+
+    <footer class="footer">
+        <div class="footer-brand">
+            <strong>The Pickle Grove</strong>
+        </div>
+
+        <hr class="divider">
+
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Contact Us</a>
+    <a href="#">FAQ</a>
+  </div>
+
+  <div class="footer-copyright">
+    &copy; 2026 PickleballPro Scheduling. All rights reserved.
+  </div>
+</footer>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

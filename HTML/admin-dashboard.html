@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - The Pickle Grove Admin</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+    <div class="sidebar">
+        <div class="logo">
+            <img src="pickle logo.jpg" alt="Logo">
+            <h2 style="font-size:16px;">The Pickle Grove</h2>
+        </div>
+        <button class="sidebar-btn active" onclick="window.location.href='admin-dashboard.html'">Dashboard</button>
+        <button class="sidebar-btn" onclick="window.location.href='admin-calendar.html'">Calendar</button>
+        <button class="sidebar-btn" onclick="window.location.href='admin-bookings.html'">Bookings</button>
+        <button class="sidebar-btn" onclick="window.location.href='equipment.html'">Equipment Rental</button>
+        <button class="sidebar-logout">Logout</button>
+    </div>
+
+    <div class="content-area">
+        <div class="content-topbar">
+            <h2>Dashboard</h2>
+            <div class="topbar-icons">
+            <span class="topbar-icon" onclick="toggleNotifications()">&#128276;</span>
+            <span class="topbar-icon" onclick="window.location.href='profile.html'">&#128100;</span>
+            <span class="topbar-icon" onclick="window.location.href='settings.html'">&#9881;</span>
+
+            <div class="notification-panel" id="notificationPanel">
+                <div class="notification-header">
+                    <h4>Notifications</h4>
+                    <a onclick="markAllRead()">Mark all as read</a>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon green">&#128197;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">New bookings received</div>
+                        <div class="notif-desc">Juan Dela Cruz reserved Court 1</div>
+                        <div class="notif-desc">August 29, 2026 (5:00 PM - 6:00 PM)</div>
+                    </div>
+                    <div class="notif-time">2 mins ago</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon blue">&#10003;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Booking confirmation</div>
+                        <div class="notif-desc">Booking for Court 2 has been confirmed</div>
+                        <div class="notif-desc">August 13, 2026</div>
+                    </div>
+                    <div class="notif-time">15 mins ago</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon mint">&#128230;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Equipment rental added</div>
+                        <div class="notif-desc">5 new Pro Graphite Paddles added.</div>
+                        <div class="notif-desc">August 10, 2026</div>
+                    </div>
+                    <div class="notif-time">1 hour ago</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon red">&#10007;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Booking cancelled</div>
+                        <div class="notif-desc">Reservation for Court 2 was cancelled.</div>
+                        <div class="notif-desc">August 1, 2026</div>
+                    </div>
+                    <div class="notif-time">3 hours ago</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon mint">&#128276;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Court availability update</div>
+                        <div class="notif-desc">Evening slots are now open for booking.</div>
+                        <div class="notif-desc">July 29, 2026</div>
+                    </div>
+                    <div class="notif-time"></div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon green">&#128197;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">New bookings received</div>
+                        <div class="notif-desc">Juan Dela Cruz reserved Court 1</div>
+                        <div class="notif-desc">July 29, 2026 (5:00 PM - 6:00 PM)</div>
+                    </div>
+                    <div class="notif-time"></div>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon blue">&#10003;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Booking confirmation</div>
+                        <div class="notif-desc">Booking for Court 2 has been confirmed</div>
+                        <div class="notif-desc">July 13, 2026</div>
+                    </div>
+                    <div class="notif-time"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section-title">Today's Summary</div>
+        <div class="summary-cards-row">
+            <div class="summary-card">
+                <div class="summary-card-body">
+                    <div class="label">Today's Bookings</div>
+                    <div class="value" id="statTodaysBookings">0</div>
+                </div>
+                <a class="summary-card-link" href="admin-bookings.html">View all bookings <span>&#8594;</span></a>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-body">
+                    <div class="label">Available date this month</div>
+                    <div class="value" id="statAvailableDates">0</div>
+                </div>
+                <a class="summary-card-link" href="admin-calendar.html">View available date <span>&#8594;</span></a>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-body">
+                    <div class="label">Equipment Rentals</div>
+                    <div class="value" id="statEquipmentRentals">0</div>
+                </div>
+                <a class="summary-card-link" href="equipment.html">View all rentals <span>&#8594;</span></a>
+            </div>
+        </div>
+
+        <div class="dashboard-section-title">Bookings Overview</div>
+        <div class="stat-cards-row">
+            <div class="stat-card">
+                <div class="label">Upcoming</div>
+                <div class="stat-row"><div class="stat-icon grey">&#128337;</div><div class="stat-value" id="statUpcoming">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Bookings</div>
+                <div class="stat-row"><div class="stat-icon grey">&#128197;</div><div class="stat-value" id="statTotalBookings">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Completed</div>
+                <div class="stat-row"><div class="stat-icon green">&#10003;</div><div class="stat-value" id="statCompleted">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Cancelled</div>
+                <div class="stat-row"><div class="stat-icon red">&#10007;</div><div class="stat-value" id="statCancelled">0</div></div>
+            </div>
+        </div>
+
+        <div class="dashboard-bottom-row">
+            <div class="calendar-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h4 style="margin:0;">Court Availability</h4>
+                    <div class="mini-cal-legend">
+                        <span><span class="status-dot available"></span>Open</span>
+                        <span><span class="status-dot booked"></span>Booked</span>
+                    </div>
+                </div>
+                <div class="pill-group" style="margin-bottom:15px;">
+                    <button class="active-court" onclick="setDashboardCourt(1, this)">Court 1</button>
+                    <button onclick="setDashboardCourt(2, this)">Court 2</button>
+                </div>
+                <div class="calendar-header">
+                    <button id="dashCalendarPrevBtn" onclick="changeDashboardMonth(-1)">&#8249;</button>
+                    <strong id="dashboardCalendarLabel">August, 2026</strong>
+                    <button onclick="changeDashboardMonth(1)">&#8250;</button>
+                </div>
+                <div class="calendar-grid" id="dashboardCalendarGrid">
+                    <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+                    <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+                </div>
+            </div>
+
+            <div class="recent-bookings-card">
+                <h4>Recent Bookings</h4>
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Date</th><th>Time</th><th>Court</th></tr>
+                    </thead>
+                    <tbody id="recentBookingsBody">
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                        <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+    <div class="sidebar">
+        <div class="logo">
+            <img src="pickle logo.jpg" alt="Logo">
+            <h2 style="font-size:16px;">The Pickle Grove</h2>
+        </div>
+        <button class="sidebar-btn" onclick="window.location.href='admin-dashboard.html'">Dashboard</button>
+        <button class="sidebar-btn" onclick="window.location.href='admin-calendar.html'">Calendar</button>
+        <button class="sidebar-btn" onclick="window.location.href='admin-bookings.html'">Bookings</button>
+        <button class="sidebar-btn" onclick="window.location.href='equipment.html'">Equipment Rental</button>
+        <button class="sidebar-logout">Logout</button>
+    </div>
+
+    <div class="content-area">
+        <div class="content-topbar">
+            <h2>Settings</h2>
+            <div class="topbar-icons">
+            <span class="topbar-icon" onclick="toggleNotifications()">&#128276;</span>
+            <span class="topbar-icon" onclick="window.location.href='profile.html'">&#128100;</span>
+            <span class="topbar-icon" onclick="window.location.href='settings.html'">&#9881;</span>
+            <div class="notification-panel" id="notificationPanel">
+                <div class="notification-header">
+                    <h4>Notifications</h4>
+                    <a onclick="markAllRead()">Mark all as read</a>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon blue">&#10003;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">Booking confirmation</div>
+                        <div class="notif-desc">Booking for Court 2 has been confirmed</div>
+                        <div class="notif-desc">August 13, 2026</div>
+                    </div>
+                    <div class="notif-time">15 mins ago</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <h2>Settings</h2>
+        <p class="subtitle">Manage your account and system preferences</p>
+
+        <div class="settings-card">
+            <h3>Account &amp; Security</h3>
+            <div class="settings-row">
+                <span>Change Password</span>
+                <button class="btn-secondary" style="max-width:150px;" onclick="openModal('passwordModal')">Change password</button>
+            </div>
+            <div class="settings-row">
+                <span>Login Security</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3>Notifications</h3>
+            <div class="settings-row">
+                <span>Booking Notifications</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>Equipment Rentals Alerts</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>System Notifications</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3>Booking References</h3>
+            <div class="settings-row">
+                <span>Booking Confirmation</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+                <span>Cancellation Notification</span>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+    <div class="modal-box wide">
+        <h3>Change Password</h3>
+        <p>Update your account password to keep your account secure.</p>
+        <div class="form-group">
+            <label>CURRENT PASSWORD</label>
+            <input type="password" placeholder="********">
+        </div>
+        <div class="form-group">
+            <label>NEW PASSWORD</label>
+            <input type="password" placeholder="********">
+        </div>
+        <div class="form-group">
+            <label>CONFIRM NEW PASSWORD</label>
+            <input type="password" placeholder="********">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('passwordModal')">Cancel</button>
+            <button class="btn-primary" onclick="closeModal('passwordModal'); openModal('passwordDoneModal')">Update Password</button>
+        </div>
+    </div>
+</div>
+
+<!-- Password changed success modal -->
+<div class="modal-overlay" id="passwordDoneModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#128274;</div>
+        <h3>Change password successfully!</h3>
+        <p>Your password has been changed successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('passwordDoneModal')">OK</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings - The Pickle Grove Admin</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+    <div class="sidebar">
+        <div class="logo">
+            <img src="pickle logo.jpg" alt="Logo">
+            <h2 style="font-size:16px;">The Pickle Grove</h2>
+        </div>
+        <button class="sidebar-btn" onclick="window.location.href='admin-dashboard.html'">Dashboard</button>
+        <button class="sidebar-btn" onclick="window.location.href='admin-calendar.html'">Calendar</button>
+        <button class="sidebar-btn active" onclick="window.location.href='admin-bookings.html'">Bookings</button>
+        <button class="sidebar-btn" onclick="window.location.href='equipment.html'">Equipment Rental</button>
+        <button class="sidebar-logout">Logout</button>
+    </div>
+
+    <div class="content-area">
+        <div class="content-topbar">
+            <h2>Bookings</h2>
+            <div class="topbar-icons">
+            <span class="topbar-icon" onclick="toggleNotifications()">&#128276;</span>
+            <span class="topbar-icon" onclick="window.location.href='profile.html'">&#128100;</span>
+            <span class="topbar-icon" onclick="window.location.href='settings.html'">&#9881;</span>
+            <div class="notification-panel" id="notificationPanel">
+                <div class="notification-header">
+                    <h4>Notifications</h4>
+                    <a onclick="markAllRead()">Mark all as read</a>
+                </div>
+                <div class="notification-item">
+                    <div class="notif-icon green">&#128197;</div>
+                    <div class="notif-body">
+                        <div class="notif-title">New bookings received</div>
+                        <div class="notif-desc">Juan Dela Cruz reserved Court 1</div>
+                        <div class="notif-desc">August 29, 2026 (5:00 PM - 6:00 PM)</div>
+                    </div>
+                    <div class="notif-time">2 mins ago</div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <h3 style="margin:15px 0 2px;">Booking Management</h3>
+        <p class="subtitle" style="margin-top:-2px;">View, search, and manage all court bookings.</p>
+
+        <div class="admin-toolbar">
+            <input type="text" id="bookingsSearchInput" placeholder="Search..." oninput="renderAdminBookingsTable()">
+            <input type="date">
+            <button class="btn-primary" style="max-width:170px; display:flex; align-items:center; gap:6px; justify-content:center;" onclick="openModal('newBookingModal')">&#10133; New Booking</button>
+        </div>
+
+        <div class="admin-table-filters">
+            <button class="active" id="bookingsFilterAll" onclick="setBookingsFilter('all', this)">All</button>
+            <button id="bookingsFilterUpcoming" onclick="setBookingsFilter('upcoming', this)">Upcoming</button>
+        </div>
+        <table class="admin-data-table">
+            <thead>
+                <tr><th>Name</th><th>Date</th><th>Time</th><th>Court</th></tr>
+            </thead>
+            <tbody id="adminBookingsBody">
+                <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- New Booking Modal -->
+<div class="modal-overlay" id="newBookingModal">
+    <div class="modal-box wide">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0;">New Booking</h3>
+            <span style="cursor:pointer; font-size:18px;" onclick="closeModal('newBookingModal')">&#10005;</span>
+        </div>
+        <p style="margin-top:4px;">Schedule court time and reserve equipment.</p>
+        <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text">
+        </div>
+        <div style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+                <label>Court Selection</label>
+                <select>
+                    <option value="">Select Court</option>
+                    <option value="1">Court 1</option>
+                    <option value="2">Court 2</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Duration</label>
+                <input type="text" placeholder="e.g. 1 hour">
+            </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+                <label>Date</label>
+                <input type="date">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Start Time</label>
+                <input type="time">
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('newBookingModal')">Cancel</button>
+            <button class="btn-primary" onclick="closeModal('newBookingModal'); openModal('newBookingSuccessModal')">Add Booking</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="newBookingSuccessModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Success</h3>
+        <p>Booked Successfully!</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('newBookingSuccessModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Receipt - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<div class="page-nav">
+    <a class="back-arrow" href="schedule.html">&#8592;</a>
+    <h2>Digital Receipt</h2>
+</div>
+
+<div class="receipt-wrap">
+    <div style="width:100%; max-width:380px;">
+    <div class="receipt-card">
+        <div class="modal-icon success" style="margin:0 auto 10px;">&#10003;</div>
+        <h3>Booking Confirmed!</h3>
+        <div class="receipt-sub">Digital Receipt</div>
+
+        <div class="receipt-details">
+            <div class="receipt-row"><span class="label">DATE</span><span class="label">CUSTOMER</span></div>
+            <div class="receipt-row"><span id="receiptCreatedDate">-</span><span id="receiptCustomerName">-</span></div>
+        </div>
+
+        <div class="receipt-details">
+            <div class="label">BOOKING DETAILS</div>
+            <div id="receiptBookingRows">
+                <div class="receipt-row"><span>Court:</span><span>-</span></div>
+                <div class="receipt-row"><span>Date:</span><span>-</span></div>
+            </div>
+            <div class="receipt-row"><span>Reference no:</span><span id="receiptRefNo">-</span></div>
+        </div>
+
+        <div class="receipt-total"><span>Total</span><span id="receiptTotal">&#8369;0.00</span></div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px; gap:20px;">
+        <button class="btn-secondary" onclick="openModal('doneModal')">Done</button>
+        <button class="btn-primary" onclick="openModal('savedModal')">Save</button>
+    </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Payment successful modal -->
+<div class="modal-overlay" id="doneModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Payment successful!</h3>
+        <p>Your payment has been process successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('doneModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Saved modal -->
+<div class="modal-overlay" id="savedModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Saved successfully!</h3>
+        <p>Your receipt has been saved.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('savedModal')">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment rejected modal -->
+<div class="modal-overlay" id="rejectedModal">
+    <div class="modal-box">
+        <div class="modal-icon error">&#10007;</div>
+        <h3>Payment rejected</h3>
+        <p>Currently your payment cannot be processed. Please check your payment details.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('rejectedModal')">Go Back</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>

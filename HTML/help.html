@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Support - The Pickle Grove</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="pickle logo.jpg" alt="Logo">
+        <h2>The Pickle Grove</h2>
+    </div>
+    <div class="nav-links">
+        <a class="link" id="home" href="landingpage.html">Home</a>
+        <a class="link" id="schedule" href="availability.html">Schedule</a>
+        <button class="icon-btn" onclick="window.location.href='help.html'">?</button>
+        <button class="icon-btn" onclick="window.location.href='guide.html'">i</button>
+            <button class="icon-btn" onclick="window.location.href='myprofile.html'">&#9881;</button>
+        <button class="logout" onclick="openModal('logoutModal')">Logout</button>
+    </div>
+</nav>
+
+<div class="help-wrap">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+            <h3 style="margin-bottom:2px;">Help &amp; Support</h3>
+            <p class="subtitle">How can we help you?</p>
+        </div>
+        <button class="btn-secondary" style="max-width:100px;" onclick="window.location.href='guide.html'">Guide</button>
+    </div>
+
+    <input class="help-search" type="text" placeholder="Search...">
+
+    <div class="faq-card">
+        <h4>Frequently Asked Questions</h4>
+
+        <div class="faq-item" onclick="toggleFaq('faq1')">How do I book a court? <span>&#9662;</span></div>
+        <div class="faq-answer" id="faq1">Go to the Schedule page, pick an open time slot on your preferred court, then confirm your booking.</div>
+
+        <div class="faq-item" onclick="toggleFaq('faq2')">How do I cancel my booking? <span>&#9662;</span></div>
+        <div class="faq-answer" id="faq2">Open your booking under Bookings and select Cancel at least 24 hours before your scheduled time.</div>
+
+        <div class="faq-item" onclick="toggleFaq('faq3')">How check my booking? <span>&#9662;</span></div>
+        <div class="faq-answer" id="faq3">Your upcoming and past bookings are listed under the Bookings section of your account.</div>
+
+        <div class="faq-item" onclick="toggleFaq('faq4')">Can I rent equipment? <span>&#9662;</span></div>
+        <div class="faq-answer" id="faq4">Yes, paddles and balls can be added during checkout on the booking summary page.</div>
+    </div>
+
+    <div class="contact-card">
+        <h4>Contact Information</h4>
+        <p><strong>Contact no.</strong> 09XXXXXXXXX</p>
+        <p><strong>Email:</strong> picklegrove@gmail.com</p>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand"><strong>The Pickle Grove</strong></div>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+    </div>
+    <div class="footer-copyright">&copy; 2026 PickleballPro Scheduling. All rights reserved.</div>
+</footer>
+
+<!-- Logout confirm modal -->
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box">
+        <div class="modal-icon neutral">&#8674;</div>
+        <h3>Are you sure you want to log out?</h3>
+        <p>You will need to log in again to access your account.</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('logoutModal')">Cancel</button>
+            <button class="btn-primary" onclick="closeModal('logoutModal'); openModal('loggedOutModal')">Log Out</button>
+        </div>
+    </div>
+</div>
+
+<!-- Logged out success modal -->
+<div class="modal-overlay" id="loggedOutModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Log Out successfully!</h3>
+        <p>You have been logged out of your account.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="window.location.href='login.html'">OK</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="../JavaScript/script.js"></script>
+</body>
+</html>
