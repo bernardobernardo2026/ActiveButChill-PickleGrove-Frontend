@@ -66,7 +66,7 @@
         <h3>Success</h3>
         <p>Log in successfully!</p>
         <div class="modal-actions">
-            <button class="btn-primary" onclick="window.location.href='landingpage.html'">Done</button>
+            <button class="btn-primary" onclick="goAfterLogin()">Done</button>
         </div>
     </div>
 </div>
@@ -76,7 +76,7 @@
     <div class="modal-box">
         <div class="modal-icon error" style="background:none; color:#d9534f; font-size:34px;">&#9888;</div>
         <h3>Unable to log in</h3>
-        <p>An unexpected error occurred. Please try logging in again!</p>
+        <p>Incorrect email or password. Please try again, or sign up if you don't have an account yet.</p>
         <div class="modal-actions">
             <button class="btn-primary" onclick="closeModal('loginErrorModal')">OK</button>
         </div>
