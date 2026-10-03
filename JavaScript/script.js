@@ -983,7 +983,7 @@ function loadProfilePage() {
     document.getElementById('profileDisplayName').textContent = profile.fullName || 'Name';
     document.getElementById('profileDisplayEmail').textContent = profile.email || 'Email';
 
-    const savedPhoto = localStorage.getItem('pickleGroveUserPhoto');
+    const savedPhoto = localStorage.getItem(getPhotoKey()) || localStorage.getItem('pickleGroveUserPhoto');
     if (savedPhoto) {
         const preview = document.getElementById('profileAvatarPreview');
         preview.innerHTML = '';
@@ -1010,23 +1010,53 @@ function saveProfileInfo() {
     openModal('profileSavedModal');
 }
 
-// Reads the chosen image file and stores it as the profile photo
+// Each account keeps its own photo (so two people signing up on the same phone don't share one)
+function getPhotoKey() {
+    const email = localStorage.getItem('pickleGroveCurrentUser');
+    return email ? 'pickleGroveUserPhoto_' + email : 'pickleGroveUserPhoto';
+}
+
+// Reads the chosen image, shrinks it to a small square (phone camera photos are several MB,
+// too big for the browser's storage), saves it, and shows it right away
 function handleProfilePhotoUpload(input) {
     const file = input.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function (e) {
-        const dataUrl = e.target.result;
-        localStorage.setItem('pickleGroveUserPhoto', dataUrl);
+        const img = new Image();
+        img.onload = function () {
+            const SIZE = 240;
+            const canvas = document.createElement('canvas');
+            canvas.width = SIZE;
+            canvas.height = SIZE;
+            // crop the middle square of the photo, then scale it down
+            const side = Math.min(img.width, img.height);
+            const sx = (img.width - side) / 2;
+            const sy = (img.height - side) / 2;
+            canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-        const preview = document.getElementById('profileAvatarPreview');
-        preview.innerHTML = '';
-        preview.style.backgroundImage = "url('" + dataUrl + "')";
-        preview.style.backgroundSize = 'cover';
-        preview.style.backgroundPosition = 'center';
+            try {
+                localStorage.setItem(getPhotoKey(), dataUrl);
+            } catch (err) {
+                alert('Sorry, the photo could not be saved. Please try a different picture.');
+                return;
+            }
+
+            const preview = document.getElementById('profileAvatarPreview');
+            preview.innerHTML = '';
+            preview.style.backgroundImage = "url('" + dataUrl + "')";
+            preview.style.backgroundSize = 'cover';
+            preview.style.backgroundPosition = 'center';
+        };
+        img.onerror = function () {
+            alert('This file could not be opened as a picture. Please choose a JPG or PNG photo.');
+        };
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+    input.value = ''; // lets the same file be picked again later
 }
 
 // Validates and applies a password change against the stored dummy password
