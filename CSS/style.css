@@ -1677,3 +1677,28 @@ body:has(> .footer) > .footer {
 .info-card p, .info-card li { font-size: 13px; color: #444; margin: 0 0 4px; }
 .info-card ul { margin: 0; padding-left: 18px; }
 .info-card a { color: #1F4D32; }
+
+/* Profile picture keeps its square size on phones (it was being squeezed into a thin strip) */
+.profile-avatar-placeholder {
+    flex-shrink: 0;
+}
+.profile-avatar-row .name-email {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+    .profile-avatar-row { gap: 12px; }
+    .profile-avatar-placeholder { width: 56px; height: 56px; }
+    .profile-avatar-row .btn-secondary { flex-shrink: 0; }
+}
+
+/* Date under the Live Availability heading */
+.live-date {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: #1F4D32;
+    font-weight: bold;
+}
+.section-header div > h4 {
+    margin-bottom: 0;
+}
