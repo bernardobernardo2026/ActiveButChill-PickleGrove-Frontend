@@ -79,7 +79,7 @@ function updateBookingSummary() {
 }
 
 // Used on schedule.html - Change Date button, opens a click-only mini calendar (no manual typing)
-let miniCalendarDate = new Date(2026, 8, 1); // starts on September 2026
+let miniCalendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // starts on the current month
 
 function toggleMiniCalendar() {
     const popup = document.getElementById('miniCalendarPopup');
@@ -235,6 +235,10 @@ function handleConfirmClick() {
         nameInput.style.border = '1px solid #d9534f';
         return;
     }
+    if (!document.querySelector('input[name="payment"]:checked')) {
+        openModal('noPaymentModal');
+        return;
+    }
     openModal('confirmModal');
 }
 
@@ -246,7 +250,9 @@ function handleConfirmClick() {
 
 function getBookings() {
     try {
-        return JSON.parse(localStorage.getItem('pickleGroveBookings')) || [];
+        const data = JSON.parse(localStorage.getItem('pickleGroveBookings'));
+        // Older versions of the site stored bookings as an object, not an array.
+        return Array.isArray(data) ? data : [];
     } catch (e) {
         return [];
     }
@@ -277,6 +283,7 @@ function finalizeBooking() {
     const paddleQty = parseInt(document.getElementById('paddleQty').textContent) || 0;
     const ballQty = parseInt(document.getElementById('ballQty').textContent) || 0;
     const total = subtotal + (paddleQty * 50) + (ballQty * 20);
+    const paymentInput = document.querySelector('input[name="payment"]:checked');
 
     const record = {
         id: Date.now(),
@@ -288,6 +295,7 @@ function finalizeBooking() {
         paddles: paddleQty,
         balls: ballQty,
         total: total,
+        payment: paymentInput ? paymentInput.value : '',
         createdAt: Date.now()
     };
 
@@ -524,9 +532,9 @@ document.addEventListener('DOMContentLoaded', markPastSlots);
 
 // ===== Court Availability calendar (availability.html) =====
 // Booked days now come from real bookings (see getBookedDaysForMonth), starting empty until people book.
-let calendarViewDate = new Date(2026, 8, 1); // starts on September 2026
-const CALENDAR_MIN_YEAR = 2026;
-const CALENDAR_MIN_MONTH = 8; // September (0-indexed) - "today" for this demo, so can't go earlier
+let calendarViewDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // starts on the current month
+const CALENDAR_MIN_YEAR = new Date().getFullYear();
+const CALENDAR_MIN_MONTH = new Date().getMonth(); // current month (0-indexed) - can't navigate earlier
 
 // Shared helper - true if the given date is strictly before today (time-of-day ignored)
 function isDateInThePast(year, month, day) {
@@ -588,7 +596,7 @@ function changeMonth(delta) {
     const year = calendarViewDate.getFullYear();
     const month = calendarViewDate.getMonth();
     const atMinimum = (year === CALENDAR_MIN_YEAR && month === CALENDAR_MIN_MONTH);
-    if (delta < 0 && atMinimum) return; // block going earlier than September 2026
+    if (delta < 0 && atMinimum) return; // block going earlier than the current month
     calendarViewDate.setMonth(calendarViewDate.getMonth() + delta);
     renderCalendar();
 }
@@ -601,20 +609,85 @@ function togglePasswordVisibility(fieldId) {
     field.type = (field.type === 'password') ? 'text' : 'password';
 }
 
-// Dummy login check - since this is static/dummy-data stage, any non-empty fields succeed.
-// This makes it easy to demo both the success and error modals.
-function attemptLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    if (email && password) {
-        localStorage.setItem('pickleGroveLoggedIn', 'true');
-        openModal('loginSuccessModal');
-    } else {
-        openModal('loginErrorModal');
+// ===== Accounts (basic form session) =====
+// Per the concept paper scope there is no real authentication: accounts are only kept in this
+// browser's localStorage, with no encryption. This is a front-end prototype, not a secure login.
+// The single admin account below is how the owner/staff reach the admin pages from the same login form.
+const ADMIN_ACCOUNT = { email: 'admin@picklegrove.com', password: 'admin123' };
+
+function getAccounts() {
+    try {
+        const data = JSON.parse(localStorage.getItem('pickleGroveAccounts'));
+        return Array.isArray(data) ? data : [];
+    } catch (e) {
+        return [];
     }
 }
 
+function attemptLogin() {
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) {
+        openModal('loginErrorModal');
+        return;
+    }
+
+    if (email === ADMIN_ACCOUNT.email && password === ADMIN_ACCOUNT.password) {
+        localStorage.setItem('pickleGroveLoggedIn', 'true');
+        localStorage.setItem('pickleGroveRole', 'admin');
+        localStorage.setItem('pickleGroveCurrentUser', email);
+        openModal('loginSuccessModal');
+        return;
+    }
+
+    const account = getAccounts().find(a => a.email === email && a.password === password);
+    if (!account) {
+        openModal('loginErrorModal');
+        return;
+    }
+
+    localStorage.setItem('pickleGroveLoggedIn', 'true');
+    localStorage.setItem('pickleGroveRole', 'user');
+    localStorage.setItem('pickleGroveCurrentUser', account.email);
+
+    // Make sure the Profile page shows this account's details (keeps contact/address if it is the same person)
+    const profile = getUserProfile();
+    if (profile.email !== account.email) {
+        localStorage.setItem('pickleGroveUserProfile', JSON.stringify({
+            fullName: account.name, email: account.email, contact: '', address: ''
+        }));
+    }
+    openModal('loginSuccessModal');
+}
+
+// Called by the "Done" button on the login success modal
+function goAfterLogin() {
+    window.location.href = (localStorage.getItem('pickleGroveRole') === 'admin')
+        ? 'admin-dashboard.html'
+        : 'landingpage.html';
+}
+
 function attemptSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+    const password = document.getElementById('signupPassword').value;
+    const errorEl = document.getElementById('signupErrorMessage');
+
+    let error = '';
+    if (password.length < 6) {
+        error = 'Password must be at least 6 characters.';
+    } else if (email === ADMIN_ACCOUNT.email || getAccounts().some(a => a.email === email)) {
+        error = 'An account with this email already exists. Please log in instead.';
+    }
+    if (error) {
+        if (errorEl) errorEl.textContent = error;
+        openModal('signupErrorModal');
+        return;
+    }
+
+    const accounts = getAccounts();
+    accounts.push({ name: name, email: email, password: password });
+    localStorage.setItem('pickleGroveAccounts', JSON.stringify(accounts));
     openModal('signupSuccessModal');
 }
 
@@ -638,6 +711,8 @@ function markAllRead() {
 function handleLogout() {
     if (confirm('Are you sure you want to log out?')) {
         localStorage.removeItem('pickleGroveLoggedIn');
+        localStorage.removeItem('pickleGroveRole');
+        localStorage.removeItem('pickleGroveCurrentUser');
         window.location.href = 'login.html';
     }
 }
@@ -704,8 +779,8 @@ function renderAdminCalendarGeneric(gridId, labelId, dateObj, court) {
     }
 }
 
-// Dashboard mini calendar (starts August 2026), with its own Court 1/2 toggle like the user page
-let dashboardCalendarDate = new Date(2026, 7, 1);
+// Dashboard mini calendar (starts on the current month), with its own Court 1/2 toggle like the user page
+let dashboardCalendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let dashboardCourt = 1;
 function changeDashboardMonth(delta) {
     dashboardCalendarDate.setMonth(dashboardCalendarDate.getMonth() + delta);
@@ -724,8 +799,8 @@ function initDashboardCalendar() {
 }
 document.addEventListener('DOMContentLoaded', initDashboardCalendar);
 
-// Full Calendar page (starts August 2026) - shows bookings across both courts combined
-let adminCalendarDate = new Date(2026, 7, 1);
+// Full Calendar page (starts on the current month) - shows bookings across both courts combined
+let adminCalendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 function changeAdminCalendarMonth(delta) {
     adminCalendarDate.setMonth(adminCalendarDate.getMonth() + delta);
     renderAdminCalendarGeneric('adminCalendarGrid', 'adminCalendarLabel', adminCalendarDate, null);
@@ -750,7 +825,7 @@ function populateDashboardStats() {
     document.getElementById('statUpcoming').textContent = getUpcomingBookingsCount();
     document.getElementById('statTotalBookings').textContent = getTotalBookingSlotsCount();
     document.getElementById('statCompleted').textContent = getCompletedBookingsCount();
-    document.getElementById('statCancelled').textContent = 0; // no cancellation feature exists yet
+    document.getElementById('statCancelled').textContent = getCancelledCount();
 
     const rows = getRecentBookingRows(7);
     const tbody = document.getElementById('recentBookingsBody');
@@ -875,7 +950,23 @@ function getUserProfile() {
 }
 
 function getStoredPassword() {
+    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const account = getAccounts().find(a => a.email === email);
+    if (account) return account.password;
     return localStorage.getItem('pickleGroveUserPassword') || DEFAULT_PASSWORD;
+}
+
+// Saves a new password for the logged-in account (falls back to the old single-password key)
+function saveNewPassword(newPassword) {
+    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const accounts = getAccounts();
+    const account = accounts.find(a => a.email === email);
+    if (account) {
+        account.password = newPassword;
+        localStorage.setItem('pickleGroveAccounts', JSON.stringify(accounts));
+    } else {
+        localStorage.setItem('pickleGroveUserPassword', newPassword);
+    }
 }
 
 // Fills the profile form + display name/email + saved photo, if any exist
@@ -964,7 +1055,7 @@ function handlePasswordChange() {
         return;
     }
 
-    localStorage.setItem('pickleGroveUserPassword', newInput.value);
+    saveNewPassword(newInput.value);
     currentInput.value = '';
     newInput.value = '';
     confirmInput.value = '';
@@ -998,14 +1089,21 @@ function getMyBookingsCards() {
     bookings.forEach(b => {
         const courts = Array.from(new Set(b.slots.map(s => s.court)));
         courts.forEach(court => {
-            const hours = b.slots.filter(s => s.court === court).map(s => timeLabelToHour24(s.time)).sort((a, c) => a - c);
+            // 12AM-2AM slots belong to the night that started on the booking date, so they sort last
+            const hours = b.slots.filter(s => s.court === court)
+                .map(s => { const h = timeLabelToHour24(s.time); return h < 7 ? h + 24 : h; })
+                .sort((a, c) => a - c);
             const startHour = hours[0];
             const endHour = hours[hours.length - 1] + 1;
             const dateObj = new Date(b.year, b.month, b.day);
+            const startDateTime = new Date(b.year, b.month, b.day, startHour); // an hour above 23 rolls into the next day
+            const msUntilStart = startDateTime - new Date();
             cards.push({
                 recordId: b.id,
                 court: court,
                 dateObj: dateObj,
+                isPast: msUntilStart < 0,
+                canCancel: msUntilStart >= 24 * 60 * 60 * 1000, // 24-hour cancellation policy (see Court Rules)
                 dateStr: dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
                 timeRangeStr: hour24ToLabel(startHour) + ' - ' + hour24ToLabel(endHour),
                 paddles: b.paddles,
@@ -1014,6 +1112,18 @@ function getMyBookingsCards() {
         });
     });
     return cards;
+}
+
+// Cancel button area: cancel only while the booking is at least 24 hours away (matches the Court Rules)
+function renderCancelArea(c) {
+    if (c.canCancel) {
+        return `<button class="cancel-btn" onclick="openCancelModal(${c.recordId}, '${c.court}')">Cancel Booking</button>`;
+    }
+    if (c.isPast) {
+        return '<span style="color:#888; font-size:13px;">Completed</span>';
+    }
+    return '<div style="text-align:right;"><button class="cancel-btn" disabled style="opacity:0.45; cursor:not-allowed;">Cancel Booking</button>'
+         + '<div style="color:#888; font-size:12px; margin-top:6px;">Cancellation closes 24 hours before the booking.</div></div>';
 }
 
 let myBookingsFilter = 'today';
@@ -1055,11 +1165,16 @@ function renderMyBookings() {
                 <p>Paddle Rental: ${c.paddles}</p>
                 <p class="booking-total">Total Amount: \u20B1${c.total.toFixed(2)}</p>
             </div>
-            <button class="cancel-btn" onclick="openCancelModal(${c.recordId}, '${c.court}')">Cancel Booking</button>
+            ${renderCancelArea(c)}
         </div>
     `).join('');
 }
 document.addEventListener('DOMContentLoaded', renderMyBookings);
+
+// Counts cancellations so the admin dashboard's "Cancelled" card is not always 0
+function getCancelledCount() {
+    return parseInt(localStorage.getItem('pickleGroveCancelledCount')) || 0;
+}
 
 let pendingCancelRecordId = null;
 let pendingCancelCourt = null;
@@ -1088,7 +1203,23 @@ function confirmCancelBooking() {
     }
 
     localStorage.setItem('pickleGroveBookings', JSON.stringify(bookings));
+    localStorage.setItem('pickleGroveCancelledCount', String(getCancelledCount() + 1));
     closeModal('cancelBookingModal');
     openModal('cancelSuccessModal');
     renderMyBookings();
 }
+
+// ===== Admin access =====
+// Every admin page uses the .admin-layout sidebar. The sidebar Logout button had no action, so hook it up here.
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.sidebar-logout').forEach(btn => btn.addEventListener('click', handleLogout));
+});
+
+// Admin pages are only for the admin account - anyone else is sent to the login page
+function requireAdmin() {
+    if (!document.querySelector('.admin-layout')) return; // only run on admin pages
+    if (localStorage.getItem('pickleGroveRole') !== 'admin') {
+        window.location.href = 'login.html';
+    }
+}
+document.addEventListener('DOMContentLoaded', requireAdmin);
