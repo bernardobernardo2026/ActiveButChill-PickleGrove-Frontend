@@ -1223,3 +1223,11 @@ function requireAdmin() {
     }
 }
 document.addEventListener('DOMContentLoaded', requireAdmin);
+
+
+// Landing page: show which day the Live Availability table is for (e.g. "Today, Saturday, October 3, 2026")
+document.addEventListener('DOMContentLoaded', function () {
+    const el = document.getElementById('liveAvailabilityDate');
+    if (!el) return;
+    el.textContent = 'Today, ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+});
