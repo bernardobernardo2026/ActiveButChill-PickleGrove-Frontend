@@ -1702,3 +1702,80 @@ body:has(> .footer) > .footer {
 .section-header div > h4 {
     margin-bottom: 0;
 }
+
+/* ===================================================== */
+/* ===== ADMIN PAGES ON PHONES ========================== */
+/* ===================================================== */
+/* The admin pages were wider than the phone screen (sidebar padding, search rows and
+   dashboard cards did not shrink), so the whole page looked zoomed out and cut off. */
+.sidebar,
+.content-area {
+    box-sizing: border-box;
+}
+.admin-layout > .content-area {
+    min-width: 0;
+}
+@media (max-width: 600px) {
+    /* sidebar: two buttons per row instead of one long column */
+    .sidebar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 12px;
+    }
+    .sidebar .logo {
+        grid-column: 1 / -1;
+        margin-bottom: 4px;
+    }
+    .sidebar-btn,
+    .sidebar-logout {
+        width: 100%;
+        margin: 0;
+        padding: 9px 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    .sidebar-logout {
+        grid-column: 1 / -1;
+    }
+
+    .content-area {
+        padding: 18px 14px;
+    }
+
+    /* search / date / new button rows wrap instead of running off the screen */
+    .admin-toolbar,
+    .content-area > div[style*="display:flex"] {
+        flex-wrap: wrap;
+    }
+    .admin-toolbar input,
+    .content-area > div[style*="display:flex"] > input {
+        flex: 1 1 140px !important;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .admin-toolbar .btn-primary,
+    .content-area > div[style*="display:flex"] > .btn-primary {
+        flex: 1 1 100%;
+        max-width: none !important;
+    }
+
+    /* dashboard cards fit the screen */
+    .dashboard-bottom-row .calendar-card,
+    .dashboard-bottom-row .recent-bookings-card {
+        min-width: 0;
+        flex: 1 1 100%;
+        box-sizing: border-box;
+    }
+
+    /* tables keep full width but use smaller text so every column fits */
+    .content-area table {
+        width: 100%;
+    }
+    .content-area th,
+    .content-area td {
+        padding: 6px 4px;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+}
