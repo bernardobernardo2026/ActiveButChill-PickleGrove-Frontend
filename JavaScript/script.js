@@ -615,13 +615,23 @@ function togglePasswordVisibility(fieldId) {
 // The single admin account below is how the owner/staff reach the admin pages from the same login form.
 const ADMIN_ACCOUNT = { email: 'admin@picklegrove.com', password: 'admin123' };
 
+// Ready-made player account so a teacher or tester can log in right away without signing up
+const DEMO_ACCOUNT = { name: 'Demo Player', email: 'user@picklegrove.com', password: 'user123' };
+
 function getAccounts() {
+    let accounts = [];
     try {
         const data = JSON.parse(localStorage.getItem('pickleGroveAccounts'));
-        return Array.isArray(data) ? data : [];
+        if (Array.isArray(data)) accounts = data;
     } catch (e) {
-        return [];
+        accounts = [];
     }
+    // Make sure the demo account always exists in this browser (added once, then kept like any other account)
+    if (!accounts.some(a => a.email === DEMO_ACCOUNT.email)) {
+        accounts.push({ name: DEMO_ACCOUNT.name, email: DEMO_ACCOUNT.email, password: DEMO_ACCOUNT.password });
+        localStorage.setItem('pickleGroveAccounts', JSON.stringify(accounts));
+    }
+    return accounts;
 }
 
 function attemptLogin() {
