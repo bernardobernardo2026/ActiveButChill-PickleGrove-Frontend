@@ -9,7 +9,7 @@
 <body>
 
 <div class="page-nav">
-    <a class="back-arrow" href="schedule.html">&#8592;</a>
+    <a class="back-arrow" href="landingpage.html" title="Back to Home">&#8592;</a>
     <h2>Digital Receipt</h2>
 </div>
 
@@ -40,6 +40,7 @@
         <button class="btn-secondary" onclick="openModal('doneModal')">Done</button>
         <button class="btn-primary" onclick="openModal('savedModal')">Save</button>
     </div>
+    <p class="receipt-link"><a href="mybookings.html">View My Bookings &rarr;</a></p>
     </div>
 </div>
 
@@ -61,7 +62,7 @@
         <h3>Payment successful!</h3>
         <p>Your payment has been processed successfully.</p>
         <div class="modal-actions">
-            <button class="btn-primary" onclick="closeModal('doneModal')">Done</button>
+            <button class="btn-primary" onclick="closeModal('doneModal'); window.location.href='landingpage.html'">Done</button>
         </div>
     </div>
 </div>
