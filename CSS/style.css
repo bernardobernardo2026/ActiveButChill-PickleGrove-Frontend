@@ -1779,3 +1779,149 @@ body:has(> .footer) > .footer {
         overflow-wrap: anywhere;
     }
 }
+
+/* ===================================================== */
+/* ===== BOOKING FLOW (Calendly-style, Week 10) ========= */
+/* ===================================================== */
+.booking-flow { font-family: sans-serif; }
+.availability-wrap.booking-flow { max-width: 1080px; }
+.booking-flow h3 { margin: 0 0 4px; color: #1F4D32; font-size: 22px; }
+.flow-sub { color: #666; font-size: 14px; margin: 0 0 16px; }
+.booking-steps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; font-size: 13px; }
+.booking-steps .step { padding: 5px 12px; border-radius: 20px; background: #eee; color: #777; }
+.booking-steps .step.on { background: #1F4D32; color: #fff; }
+.booking-steps .step.done { background: #e2f0d9; color: #1F4D32; }
+.court-pills { margin-bottom: 16px; }
+.court-pills button { padding: 8px 18px; font-size: 14px; }
+.court-pills button.active-court { color: #1F4D32; font-weight: bold; }
+
+/* Step 1: calendar on the left, open times on the right */
+.cal-split { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.cal-split .calendar-card { flex: 1.2; min-width: 300px; box-sizing: border-box; }
+#calendarGrid .day-cell.selected-day {
+    background-color: #1F4D32;
+    border-color: #1F4D32;
+    color: #fff;
+    font-weight: bold;
+}
+.cal-legend { flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: #555; }
+.time-panel {
+    flex: 1;
+    min-width: 280px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+.time-panel-title { font-weight: bold; color: #222; margin: 0 0 4px; font-size: 16px; }
+.time-hint { font-size: 12px; color: #777; margin: 0 0 10px; }
+.slot-group { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: .5px; margin: 12px 0 6px; }
+.time-slot {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+    border: 1.5px solid #1F4D32;
+    border-radius: 8px;
+    background: #fff;
+    color: #1F4D32;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: left;
+}
+.time-slot:hover { background: #f2f7ee; }
+.time-slot.picked { background: #1F4D32; color: #fff; }
+.slot-left { display: flex; align-items: center; }
+.slot-check {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid currentColor;
+    border-radius: 4px;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.time-slot.picked .slot-check { background: #fff; color: #1F4D32; border-color: #fff; }
+.slot-rate { font-size: 13px; font-weight: normal; opacity: .8; }
+.slot-notice { color: #b26a00; font-size: 13px; margin: 4px 0 0; min-height: 0; }
+.slot-notice:empty { display: none; }
+.no-slots { background: #f7f7f7; border-radius: 8px; padding: 14px; color: #666; font-size: 14px; }
+.selection-summary {
+    display: none;
+    background: #f2f7ee;
+    border: 1px solid #cfe3c4;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    color: #1F4D32;
+    font-size: 14px;
+}
+.selection-summary strong { display: block; font-size: 16px; margin-bottom: 2px; }
+.next-step-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #1F4D32;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.next-step-btn:disabled { background: #b9c9bd; cursor: not-allowed; }
+
+/* Step 2: Booking Details */
+.details-wrap { max-width: 1000px; margin: 0 auto; padding: 25px; box-sizing: border-box; }
+.details-grid { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.details-card {
+    flex: 1;
+    min-width: 280px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+.details-card h4 { margin: 0 0 10px; color: #222; font-size: 16px; }
+.kv-row { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; }
+.kv-row > span:first-child { color: #666; }
+.kv-row.slot-line { font-size: 13px; }
+.details-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 12px; font-size: 13px; }
+.details-links a { color: #1F4D32; }
+.details-note { font-size: 12px; color: #888; margin: 12px 0 0; }
+.details-card .qty-row small { color: #999; }
+.pay-options { display: flex; gap: 10px; margin-bottom: 12px; }
+.pay-option {
+    flex: 1;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+.pay-option { position: relative; }
+.pay-option input { position: absolute; opacity: 0; pointer-events: none; }
+.pay-option.selected { border-color: #1F4D32; background: #f2f7ee; color: #1F4D32; font-weight: bold; }
+.details-actions { display: flex; gap: 10px; margin-top: 14px; }
+.details-actions .btn-secondary { flex: 0 0 auto; }
+
+/* Receipt */
+.receipt-link { text-align: center; margin: 14px 0 0; font-size: 14px; }
+.receipt-link a { color: #1F4D32; font-weight: bold; }
+
+@media (max-width: 600px) {
+    .cal-split, .details-grid { flex-direction: column; }
+    .cal-split .calendar-card, .time-panel, .details-card { min-width: 0; width: 100%; }
+    .details-wrap { padding: 15px; }
+    .time-slot { font-size: 14px; }
+}
