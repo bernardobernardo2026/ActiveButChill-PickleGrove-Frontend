@@ -6,19 +6,35 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
-// Used on schedule.html - clicking an available time slot (toggles selection, multiple allowed)
-function toggleSlot(el) {
-    if (el.classList.contains('past') || el.classList.contains('booked')) return;
-    if (el.classList.contains('selected-slot')) {
-        el.classList.remove('selected-slot');
-        el.classList.add('available');
-        el.textContent = '+';
-    } else {
-        el.classList.remove('available');
-        el.classList.add('selected-slot');
-        el.textContent = 'Selected';
-    }
-    updateBookingSummary();
+// ===== Time slot helpers (shared by the booking pages, receipt and My Bookings) =====
+// Slot labels look like "5:00PM". The schedule day runs 7AM -> 2AM, so 12AM-2AM count as hours 24-26.
+function slotSortHour(label) {
+    const match = label.match(/(\d+):00(AM|PM)/);
+    if (!match) return 0;
+    let hour = parseInt(match[1]);
+    if (match[2] === 'AM' && hour === 12) hour = 0;
+    if (match[2] === 'PM' && hour !== 12) hour += 12;
+    return hour < 7 ? hour + 24 : hour;
+}
+function formatHour(hour) {
+    const h = hour % 24;
+    const period = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return h12 + ':00 ' + period;
+}
+// "5:00PM" -> "5:00 PM - 6:00 PM"
+function slotRangeLabel(label) {
+    const start = slotSortHour(label);
+    return formatHour(start) + ' – ' + formatHour(start + 1);
+}
+// A list of consecutive slots -> "5:00 PM - 7:00 PM"
+function slotsRangeLabel(labels) {
+    if (!labels.length) return '';
+    const hours = labels.map(slotSortHour).sort((a, b) => a - b);
+    return formatHour(hours[0]) + ' – ' + formatHour(hours[hours.length - 1] + 1);
+}
+function sortSlotLabels(labels) {
+    return labels.slice().sort((a, b) => slotSortHour(a) - slotSortHour(b));
 }
 
 // Dummy per-hour rates matching the rates shown on the Court Rules page
@@ -47,185 +63,71 @@ function changeQty(id, delta) {
     updateBookingSummary();
 }
 
-// Recalculates the Booking Summary panel from current selections
+// ===== Step 2 (schedule.html): Booking Details =====
+// The date, court and hours picked on Step 1 are passed here as a "draft" in localStorage.
+function getBookingDraft() {
+    try {
+        const draft = JSON.parse(localStorage.getItem('pickleGroveBookingDraft'));
+        if (draft && Array.isArray(draft.slots) && draft.slots.length) return draft;
+    } catch (e) { /* ignore */ }
+    return null;
+}
+
+// Fills the "Your Schedule" card and recalculates the totals
 function updateBookingSummary() {
-    const listEl = document.getElementById('selectedSlotsList');
     const totalEl = document.getElementById('totalPrice');
-    if (!listEl || !totalEl) return; // only run on schedule.html
+    const detailTime = document.getElementById('detailTime');
+    if (!totalEl || !detailTime) return; // only run on schedule.html (Booking Details)
 
-    const selected = document.querySelectorAll('.status.selected-slot');
-    let subtotal = 0;
-
-    if (selected.length === 0) {
-        listEl.innerHTML = '<div class="muted" style="margin-bottom:10px;">No time slots selected yet. Click any open (+) slot on the left.</div>';
-    } else {
-        let rows = '';
-        selected.forEach(slot => {
-            const time = slot.getAttribute('data-time');
-            const court = slot.getAttribute('data-court');
-            const rate = getSlotRate(time);
-            subtotal += rate;
-            rows += '<div class="summary-row"><span>Court ' + court + ' - ' + time + '</span><span>\u20B1' + rate.toFixed(2) + '</span></div>';
-        });
-        listEl.innerHTML = rows;
+    const draft = getBookingDraft();
+    let courtFee = 0;
+    if (draft) {
+        const slots = sortSlotLabels(draft.slots);
+        const dateObj = new Date(draft.year, draft.month, draft.day);
+        document.getElementById('detailCourt').textContent = 'Court ' + draft.court;
+        document.getElementById('detailDate').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        detailTime.textContent = slotsRangeLabel(slots);
+        document.getElementById('detailDuration').textContent = slots.length + (slots.length === 1 ? ' hour' : ' hours');
+        document.getElementById('selectedSlotsList').innerHTML = slots.map(t => {
+            const rate = getSlotRate(t);
+            courtFee += rate;
+            return '<div class="kv-row slot-line"><span>' + slotRangeLabel(t) + '</span><span>₱' + rate.toFixed(2) + '</span></div>';
+        }).join('');
     }
 
     const paddleQty = parseInt(document.getElementById('paddleQty').textContent) || 0;
     const ballQty = parseInt(document.getElementById('ballQty').textContent) || 0;
     const equipmentTotal = (paddleQty * 50) + (ballQty * 20);
 
-    const total = subtotal + equipmentTotal;
-    totalEl.textContent = '\u20B1' + total.toFixed(2);
-}
+    document.getElementById('courtFee').textContent = '₱' + courtFee.toFixed(2);
+    document.getElementById('equipmentFee').textContent = '₱' + equipmentTotal.toFixed(2);
+    totalEl.textContent = '₱' + (courtFee + equipmentTotal).toFixed(2);
 
-// Used on schedule.html - Change Date button, opens a click-only mini calendar (no manual typing)
-let miniCalendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // starts on the current month
-
-function toggleMiniCalendar() {
-    const popup = document.getElementById('miniCalendarPopup');
-    const isHidden = popup.style.display === 'none' || popup.style.display === '';
-    popup.style.display = isHidden ? 'block' : 'none';
-    if (isHidden) renderMiniCalendar();
-}
-
-function changeMiniCalendarMonth(delta) {
-    miniCalendarDate.setMonth(miniCalendarDate.getMonth() + delta);
-    renderMiniCalendar();
-}
-
-function renderMiniCalendar() {
-    const grid = document.getElementById('miniCalendarGrid');
-    const label = document.getElementById('miniCalendarLabel');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    const year = miniCalendarDate.getFullYear();
-    const month = miniCalendarDate.getMonth();
-    if (label) label.textContent = miniCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-    ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(d => {
-        const dayLabel = document.createElement('div');
-        dayLabel.style.fontWeight = 'bold';
-        dayLabel.textContent = d;
-        grid.appendChild(dayLabel);
+    document.querySelectorAll('.pay-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.querySelector('input').checked);
     });
-
-    const firstDayIndex = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    for (let i = 0; i < firstDayIndex; i++) {
-        grid.appendChild(document.createElement('div'));
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement('div');
-        cell.textContent = day;
-        cell.style.cssText = 'padding:6px 0; border-radius:4px; cursor:pointer; background:#f4f9f0;';
-        cell.onclick = () => selectMiniCalendarDate(day, month, year);
-        grid.appendChild(cell);
-    }
 }
 
-function selectMiniCalendarDate(day, month, year) {
-    currentBookingDate = new Date(year, month, day);
-    const formatted = currentBookingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    document.getElementById('selectedDateInput').value = 'Selected Date: ' + formatted;
-    document.getElementById('miniCalendarPopup').style.display = 'none';
-    refreshScheduleTable();
-}
-
-// Tracks which real calendar date is currently selected on the booking page (defaults to today)
-let currentBookingDate = new Date();
-
-// Pulls the date/court chosen on the Court Availability calendar, if the user arrived that way
-function loadDateFromAvailabilityPage() {
-    const dateInput = document.getElementById('selectedDateInput');
-    if (!dateInput) return; // only run on schedule.html
-
-    const savedDate = localStorage.getItem('pickleGroveSelectedDate');
-    if (savedDate) {
-        currentBookingDate = new Date(savedDate);
-        dateInput.value = 'Selected Date: ' + savedDate;
-        localStorage.removeItem('pickleGroveSelectedDate');
-        localStorage.removeItem('pickleGroveSelectedCourt');
-    } else {
-        // No date was passed in, so default to today (matches the landing page's "today" behavior)
-        const formatted = currentBookingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        dateInput.value = 'Selected Date: ' + formatted;
+// Runs when the Booking Details page opens
+function initBookingDetails() {
+    if (!document.getElementById('detailTime')) return; // only run on schedule.html
+    const draft = getBookingDraft();
+    if (!draft) {
+        openModal('noSelectionModal'); // nothing picked yet -> send them back to Step 1
+        return;
     }
-    refreshScheduleTable();
-}
-document.addEventListener('DOMContentLoaded', loadDateFromAvailabilityPage);
-document.addEventListener('DOMContentLoaded', updateBookingSummary);
-
-// Disables/grays out time slots that have already passed, but only when the selected date is actually today.
-// Future dates stay fully open; a past date (if ever reached) is treated as entirely past.
-function refreshScheduleTable() {
-    const table = document.querySelector('.booking-left .schedule-table');
-    if (!table) return; // only run on schedule.html
-
-    const year = currentBookingDate.getFullYear();
-    const month = currentBookingDate.getMonth();
-    const day = currentBookingDate.getDate();
-
-    const today = new Date();
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const selectedDateOnly = new Date(year, month, day);
-    const dayDiffMs = selectedDateOnly - todayDateOnly;
-    const dayDiff = Math.round(dayDiffMs / (1000 * 60 * 60 * 24));
-
-    let currentHour24 = today.getHours();
-    if (currentHour24 < 7) currentHour24 += 24; // 12AM-2AM belongs to the next day, same as the landing page logic
-
-    table.querySelectorAll('.status[data-time]').forEach(slot => {
-        const time = slot.getAttribute('data-time');
-        const court = slot.getAttribute('data-court');
-
-        // Real bookings take priority over everything else
-        if (isExactSlotBooked(year, month, day, court, time)) {
-            slot.classList.remove('available', 'selected-slot', 'past');
-            slot.classList.add('booked');
-            slot.textContent = 'BOOKED';
-            return;
-        } else if (slot.classList.contains('booked')) {
-            // Was booked (e.g. after switching dates) but no longer matches a real booking
-            slot.classList.remove('booked');
-            slot.classList.add('available');
-            slot.textContent = '+';
-        }
-
-        let isPast = false;
-        if (dayDiff < 0) {
-            isPast = true; // selected date has already fully passed
-        } else if (dayDiff === 0) {
-            const match = time.match(/(\d+):00(AM|PM)/);
-            if (match) {
-                let hour = parseInt(match[1]);
-                const period = match[2];
-                if (period === 'AM' && hour === 12) hour = 0;
-                if (period === 'PM' && hour !== 12) hour += 12;
-                if (hour < 7) hour += 24;
-                isPast = hour < currentHour24;
-            }
-        }
-        // dayDiff > 0 (a future date) -> never past
-
-        if (isPast) {
-            slot.classList.remove('available', 'selected-slot');
-            slot.classList.add('past');
-            slot.textContent = '+';
-        } else if (slot.classList.contains('past')) {
-            slot.classList.remove('past');
-            slot.classList.add('available');
-        }
-    });
-
+    const nameInput = document.getElementById('bookingCustomerName');
+    try {
+        const profile = JSON.parse(localStorage.getItem('pickleGroveUserProfile')) || {};
+        if (nameInput && !nameInput.value && profile.fullName) nameInput.value = profile.fullName;
+    } catch (e) { /* ignore */ }
     updateBookingSummary();
 }
+document.addEventListener('DOMContentLoaded', initBookingDetails);
 
 function handleConfirmClick() {
-    const selected = document.querySelectorAll('.status.selected-slot');
-    if (selected.length === 0) {
+    const draft = getBookingDraft();
+    if (!draft) {
         openModal('noSelectionModal');
         return;
     }
@@ -238,6 +140,11 @@ function handleConfirmClick() {
     if (!document.querySelector('input[name="payment"]:checked')) {
         openModal('noPaymentModal');
         return;
+    }
+    const textEl = document.getElementById('confirmModalText');
+    if (textEl) {
+        const dateStr = new Date(draft.year, draft.month, draft.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        textEl.textContent = 'Court ' + draft.court + ' · ' + dateStr + ' · ' + slotsRangeLabel(draft.slots) + '. Confirm this booking?';
     }
     openModal('confirmModal');
 }
@@ -264,22 +171,24 @@ function saveBookingRecord(record) {
     localStorage.setItem('pickleGroveBookings', JSON.stringify(bookings));
 }
 
-// Builds a booking record from the current schedule.html page state and saves it.
+// Builds a booking record from the Booking Details page and saves it.
 // Also stashes the record for receipt.html to read.
 function finalizeBooking() {
-    const selected = document.querySelectorAll('.status.selected-slot');
+    const draft = getBookingDraft();
+    if (!draft) return false;
+    const slots = sortSlotLabels(draft.slots);
+
+    // Someone may have booked one of these hours since Step 1 - never double-book
+    const taken = slots.filter(t => isExactSlotBooked(draft.year, draft.month, draft.day, draft.court, t));
+    if (taken.length) {
+        alert('Sorry, ' + taken.map(slotRangeLabel).join(', ') + ' was just booked. Please pick another time.');
+        window.location.href = 'availability.html';
+        return false;
+    }
+
     const nameInput = document.getElementById('bookingCustomerName');
     const name = nameInput ? nameInput.value.trim() : 'Guest';
-
-    const slots = [];
-    let subtotal = 0;
-    selected.forEach(slot => {
-        const time = slot.getAttribute('data-time');
-        const court = slot.getAttribute('data-court');
-        slots.push({ court: court, time: time });
-        subtotal += getSlotRate(time);
-    });
-
+    const subtotal = slots.reduce((sum, t) => sum + getSlotRate(t), 0);
     const paddleQty = parseInt(document.getElementById('paddleQty').textContent) || 0;
     const ballQty = parseInt(document.getElementById('ballQty').textContent) || 0;
     const total = subtotal + (paddleQty * 50) + (ballQty * 20);
@@ -288,10 +197,10 @@ function finalizeBooking() {
     const record = {
         id: Date.now(),
         name: name,
-        year: currentBookingDate.getFullYear(),
-        month: currentBookingDate.getMonth(),
-        day: currentBookingDate.getDate(),
-        slots: slots,
+        year: draft.year,
+        month: draft.month,
+        day: draft.day,
+        slots: slots.map(t => ({ court: String(draft.court), time: t })),
         paddles: paddleQty,
         balls: ballQty,
         total: total,
@@ -301,9 +210,8 @@ function finalizeBooking() {
 
     saveBookingRecord(record);
     localStorage.setItem('pickleGroveLastBooking', JSON.stringify(record));
-
-    // Immediately reflect the new booking on the current table (in case the user doesn't leave right away)
-    refreshScheduleTable();
+    localStorage.removeItem('pickleGroveBookingDraft');
+    return true;
 }
 
 // Whole-day-and-court check (used by the calendar views) - true if this court has ANY booking that day
@@ -432,11 +340,30 @@ function getEquipmentRentalRows() {
     return rows;
 }
 
-// Used on availability.html - clicking a calendar day
+// ===== Step 1 (availability.html): pick a court, a date, then back-to-back hours =====
+let currentCourt = 1;
+let selectedBookingDate = null;   // { year, month, day }
+let selectedSlotLabels = [];      // e.g. ['5:00PM', '6:00PM'] - always back-to-back
+
+// Open (bookable) hours for a court on a date: not booked, and not already past if the date is today
+function getOpenSlots(year, month, day, court) {
+    if (isDateInThePast(year, month, day)) return [];
+    const now = new Date();
+    const isToday = isTodayDate(year, month, day);
+    let currentHour = now.getHours();
+    if (currentHour < 7) currentHour += 24;
+    return ALL_TIME_SLOTS.filter(t => {
+        if (isExactSlotBooked(year, month, day, court, t)) return false;
+        if (isToday && slotSortHour(t) < currentHour) return false;
+        return true;
+    });
+}
+
+// Clicking a calendar day
 function pickDay(el, day, month, year) {
     const messageEl = document.getElementById('warningModalMessage');
     if (el.classList.contains('booked')) {
-        if (messageEl) messageEl.textContent = 'The selected date is already booked. Please try an alternative date.';
+        if (messageEl) messageEl.textContent = 'This date has no open times left for Court ' + currentCourt + '. Please try another date.';
         openModal('warningModal');
         return;
     }
@@ -445,21 +372,153 @@ function pickDay(el, day, month, year) {
         openModal('warningModal');
         return;
     }
-    // Pass the picked date + court along to the booking page
-    const formatted = new Date(year, month, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    localStorage.setItem('pickleGroveSelectedDate', formatted);
-    localStorage.setItem('pickleGroveSelectedCourt', currentCourt);
-    window.location.href = 'schedule.html';
+    selectedBookingDate = { year: year, month: month, day: day };
+    selectedSlotLabels = [];
+    renderCalendar();
+    renderTimeSlots();
 }
 
-// Used on availability.html - Court 1 / Court 2 toggle
-let currentCourt = 1;
+// Court 1 / Court 2 toggle
 function setCourt(num, btn) {
     currentCourt = num;
     document.querySelectorAll('.pill-group button').forEach(b => b.classList.remove('active-court'));
     btn.classList.add('active-court');
+    selectedSlotLabels = [];
     renderCalendar();
+    renderTimeSlots();
 }
+
+// Draws the list of open hours (as ranges, grouped by rate) for the selected date
+function renderTimeSlots() {
+    const list = document.getElementById('timeSlotList');
+    if (!list) return; // only run on availability.html
+    const title = document.getElementById('timePanelTitle');
+    const hint = document.getElementById('timePanelHint');
+    document.getElementById('slotNotice').textContent = '';
+
+    if (!selectedBookingDate) {
+        title.textContent = 'Select a date';
+        hint.textContent = 'Pick a date on the calendar to see the open times.';
+        list.innerHTML = '';
+        updateSelectionSummary();
+        return;
+    }
+
+    const { year, month, day } = selectedBookingDate;
+    title.textContent = new Date(year, month, day).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' · Court ' + currentCourt;
+    const open = getOpenSlots(year, month, day, currentCourt);
+
+    if (!open.length) {
+        hint.textContent = '';
+        list.innerHTML = '<div class="no-slots">No open times left on this date. Please pick another date.</div>';
+        updateSelectionSummary();
+        return;
+    }
+    hint.textContent = 'Only open times are listed. You can pick more than one hour, as long as they are back-to-back.';
+
+    const groups = [
+        { name: 'Daytime · ₱250 / hour', rate: 250 },
+        { name: 'Peak · ₱350 / hour', rate: 350 },
+        { name: 'Late night · ₱380 / hour', rate: 380 }
+    ];
+    let html = '';
+    groups.forEach(g => {
+        const slots = open.filter(t => getSlotRate(t) === g.rate);
+        if (!slots.length) return;
+        html += '<div class="slot-group">' + g.name + '</div>';
+        slots.forEach(t => {
+            const picked = selectedSlotLabels.includes(t);
+            html += '<button type="button" class="time-slot' + (picked ? ' picked' : '') + '" data-time="' + t + '" onclick="toggleTimeSlot(\'' + t + '\')">'
+                  + '<span class="slot-left"><span class="slot-check">' + (picked ? '&#10003;' : '') + '</span>' + slotRangeLabel(t) + '</span>'
+                  + '<span class="slot-rate">₱' + g.rate + '</span></button>';
+        });
+    });
+    list.innerHTML = html;
+    updateSelectionSummary();
+}
+
+// Selecting hours: only back-to-back hours can be combined into one booking
+function toggleTimeSlot(label) {
+    let message = '';
+    const idx = ALL_TIME_SLOTS.indexOf(label);
+    const pickedIdx = selectedSlotLabels.map(t => ALL_TIME_SLOTS.indexOf(t)).sort((a, b) => a - b);
+
+    if (selectedSlotLabels.includes(label)) {
+        if (idx === pickedIdx[0] || idx === pickedIdx[pickedIdx.length - 1]) {
+            selectedSlotLabels = selectedSlotLabels.filter(t => t !== label);   // remove an end hour
+        } else {
+            selectedSlotLabels = [label];                                         // clicked the middle -> start over
+        }
+    } else if (!selectedSlotLabels.length) {
+        selectedSlotLabels = [label];
+    } else if (idx === pickedIdx[0] - 1 || idx === pickedIdx[pickedIdx.length - 1] + 1) {
+        selectedSlotLabels.push(label);                                           // extends the block
+    } else {
+        selectedSlotLabels = [label];                                             // not back-to-back -> start over
+        message = 'Only back-to-back hours can be booked together, so your selection started over at ' + slotRangeLabel(label) + '.';
+    }
+    selectedSlotLabels = sortSlotLabels(selectedSlotLabels);
+    renderTimeSlots();
+    document.getElementById('slotNotice').textContent = message;
+}
+
+function updateSelectionSummary() {
+    const box = document.getElementById('selectionSummary');
+    const btn = document.getElementById('nextStepBtn');
+    if (!box || !btn) return;
+    if (!selectedSlotLabels.length) {
+        box.innerHTML = '';
+        box.style.display = 'none';
+        btn.disabled = true;
+        return;
+    }
+    const fee = selectedSlotLabels.reduce((sum, t) => sum + getSlotRate(t), 0);
+    const hours = selectedSlotLabels.length;
+    box.innerHTML = '<strong>' + slotsRangeLabel(selectedSlotLabels) + '</strong>'
+                  + '<span>' + hours + (hours === 1 ? ' hour' : ' hours') + ' · Court fee ₱' + fee.toFixed(2) + '</span>';
+    box.style.display = 'block';
+    btn.disabled = false;
+}
+
+// "Next: Booking Details" - saves the pick and opens Step 2
+function goToBookingDetails() {
+    if (!selectedBookingDate || !selectedSlotLabels.length) return;
+    if (localStorage.getItem('pickleGroveLoggedIn') !== 'true') {
+        openModal('loginRequiredModal');
+        return;
+    }
+    const draft = {
+        year: selectedBookingDate.year,
+        month: selectedBookingDate.month,
+        day: selectedBookingDate.day,
+        court: currentCourt,
+        slots: selectedSlotLabels.slice()
+    };
+    localStorage.setItem('pickleGroveBookingDraft', JSON.stringify(draft));
+    window.location.href = 'schedule.html';
+}
+
+// When Step 1 opens: restore an unfinished pick (e.g. after "Change date or time"), or pre-select today
+function initBookingStepOne() {
+    if (!document.getElementById('timeSlotList')) return; // only run on availability.html
+    const draft = getBookingDraft();
+    if (draft && !isDateInThePast(draft.year, draft.month, draft.day)) {
+        currentCourt = parseInt(draft.court) || 1;
+        document.querySelectorAll('.pill-group button').forEach((b, i) => b.classList.toggle('active-court', i + 1 === currentCourt));
+        selectedBookingDate = { year: draft.year, month: draft.month, day: draft.day };
+        const open = getOpenSlots(draft.year, draft.month, draft.day, currentCourt);
+        selectedSlotLabels = draft.slots.filter(t => open.includes(t));
+        calendarViewDate = new Date(draft.year, draft.month, 1);
+    } else {
+        const t = new Date();
+        if (getOpenSlots(t.getFullYear(), t.getMonth(), t.getDate(), currentCourt).length) {
+            selectedBookingDate = { year: t.getFullYear(), month: t.getMonth(), day: t.getDate() };
+        }
+    }
+    renderCalendar();
+    renderTimeSlots();
+}
+document.addEventListener('DOMContentLoaded', initBookingStepOne);
 
 // Used on help.html - expanding FAQ answers
 function toggleFaq(id) {
@@ -579,12 +638,17 @@ function renderCalendar() {
         const isPastDay = isDateInThePast(year, month, day);
         const isBooked = bookedDays.includes(day);
 
-        if (isBooked) {
+        // "Fully booked" also covers today when every remaining hour is taken or already over
+        const noOpenHours = !isPastDay && !isBooked && isTodayDate(year, month, day) && getOpenSlots(year, month, day, currentCourt).length === 0;
+        if (isBooked || noOpenHours) {
             cell.className = 'day-cell booked';
         } else if (isPastDay) {
             cell.className = 'day-cell past';
         } else {
             cell.className = 'day-cell';
+        }
+        if (selectedBookingDate && selectedBookingDate.year === year && selectedBookingDate.month === month && selectedBookingDate.day === day) {
+            cell.classList.add('selected-day');
         }
         cell.textContent = day;
         cell.onclick = () => pickDay(cell, day, month, year);
@@ -601,7 +665,7 @@ function changeMonth(delta) {
     renderCalendar();
 }
 
-document.addEventListener('DOMContentLoaded', renderCalendar);
+// (renderCalendar is started by initBookingStepOne once the court/date are known)
 
 // ===== Login / Sign Up pages =====
 function togglePasswordVisibility(fieldId) {
@@ -729,7 +793,7 @@ function handleLogout() {
 
 // Used on schedule.html - blocks booking until the user has logged in
 function requireLoginForBooking() {
-    if (!document.querySelector('.booking-left .schedule-table')) return; // only run on schedule.html
+    if (!document.getElementById('detailTime')) return; // only run on schedule.html (Booking Details)
     const isLoggedIn = localStorage.getItem('pickleGroveLoggedIn') === 'true';
     if (!isLoggedIn) {
         openModal('loginRequiredModal');
@@ -939,11 +1003,19 @@ function populateReceipt() {
     document.getElementById('receiptRefNo').textContent = '#PG-' + String(record.id).slice(-5);
     document.getElementById('receiptTotal').textContent = '\u20B1' + record.total.toFixed(2);
 
-    const rowsHtml = record.slots.map(s =>
-        `<div class="receipt-row"><span>Court ${s.court}:</span><span>${s.time}</span></div>`
-    ).join('');
-    document.getElementById('receiptBookingRows').innerHTML =
-        `<div class="receipt-row"><span>Date:</span><span>${bookingDateStr}</span></div>` + rowsHtml;
+    const times = record.slots.map(s => s.time);
+    const courts = [...new Set(record.slots.map(s => 'Court ' + s.court))].join(', ');
+    const hours = times.length;
+    const equipment = [];
+    if (record.paddles) equipment.push(record.paddles + (record.paddles === 1 ? ' paddle' : ' paddles'));
+    if (record.balls) equipment.push(record.balls + (record.balls === 1 ? ' ball' : ' balls'));
+    let rows = `<div class="receipt-row"><span>Court:</span><span>${courts}</span></div>`
+             + `<div class="receipt-row"><span>Date:</span><span>${bookingDateStr}</span></div>`
+             + `<div class="receipt-row"><span>Time:</span><span>${slotsRangeLabel(times)}</span></div>`
+             + `<div class="receipt-row"><span>Duration:</span><span>${hours} ${hours === 1 ? 'hour' : 'hours'}</span></div>`
+             + `<div class="receipt-row"><span>Equipment:</span><span>${equipment.length ? equipment.join(', ') : 'None'}</span></div>`;
+    if (record.payment) rows += `<div class="receipt-row"><span>Payment:</span><span>${record.payment}</span></div>`;
+    document.getElementById('receiptBookingRows').innerHTML = rows;
 }
 document.addEventListener('DOMContentLoaded', populateReceipt);
 
