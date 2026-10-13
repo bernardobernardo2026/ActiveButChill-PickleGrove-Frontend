@@ -1925,3 +1925,193 @@ body:has(> .footer) > .footer {
     .details-wrap { padding: 15px; }
     .time-slot { font-size: 14px; }
 }
+
+/* ===================================================== */
+/* ===== HEADER ICONS + ACTIVE PAGE, MULTI-COURT PICK ==== */
+/* ===================================================== */
+/* Every header item now has an icon, and the page you are on is underlined */
+.nav-links .nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 16px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.nav-item .icon-circle {
+    width: 24px;
+    height: 24px;
+    border: 1px solid white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+.nav-item .icon-circle svg { width: 13px; height: 13px; }
+.nav-item .icon-label {
+    padding: 3px 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+.nav-item:hover { text-decoration: none; }
+.nav-item:hover .icon-label { border-bottom-color: rgba(255, 255, 255, 0.5); }
+.nav-item.active-link .icon-label { border-bottom-color: #fff; font-weight: bold; }
+.nav-item.active-link .icon-circle { background: #fff; color: #1F4D32; }
+
+/* Court buttons show hours picked on each court */
+.court-pills .pill-count { font-size: 12px; font-weight: normal; }
+
+/* Step 1 selection box: one line per time block */
+.selection-summary .sum-line,
+.selection-summary .sum-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 3px 0;
+}
+.selection-summary .sum-total {
+    border-top: 1px solid #cfe3c4;
+    margin-top: 6px;
+    padding-top: 6px;
+    font-weight: bold;
+}
+#detailTime { text-align: right; }
+
+/* ===================================================== */
+/* ===== CLOSED DATES / HOURS (blocked by the admin) ===== */
+/* ===================================================== */
+.status-dot.closed,
+.box-closed {
+    background: repeating-linear-gradient(135deg, #d5dae1 0 4px, #eef0f3 4px 8px);
+    border: 1px solid #7d8796;
+}
+.box-closed { width: 16px; height: 16px; display: block; }
+.calendar-grid .day-cell.closed {
+    background: repeating-linear-gradient(135deg, #d5dae1 0 6px, #eef0f3 6px 12px);
+    border: 1px solid #7d8796;
+    color: #3d4652;
+    font-weight: bold;
+}
+/* some hours closed: small dot under the number */
+.calendar-grid .day-cell.partly-closed { position: relative; }
+.calendar-grid .day-cell.partly-closed::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    border-radius: 50%;
+    background: #7d8796;
+}
+#adminCalendarGrid .day-cell.selected-day {
+    outline: 3px solid #1F4D32;
+    outline-offset: -1px;
+}
+.status.closed {
+    width: 100%;
+    height: 35px;
+    background: repeating-linear-gradient(135deg, #d5dae1 0 5px, #eef0f3 5px 10px);
+    border: 1px solid #7d8796;
+    border-radius: 3px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3d4652;
+    font-weight: bold;
+    font-size: 13px;
+}
+/* user Step 1: closed-hours note above the time list */
+.closed-note {
+    background: #eef0f3;
+    border: 1px solid #b9c0ca;
+    border-left: 4px solid #7d8796;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    color: #3d4652;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* Admin Calendar: Block Date / Hours */
+.block-layout {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: flex-start;
+}
+.block-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+.block-card h4 { margin: 0 0 4px; color: #1F4D32; }
+.block-sub { margin: 0 0 12px; color: #666; font-size: 13px; }
+.block-title { margin: 0 0 10px; font-weight: bold; color: #1F4D32; }
+.block-form { display: none; flex-direction: column; gap: 6px; }
+.block-form.show { display: flex; }
+.block-form > label { font-size: 13px; font-weight: bold; color: #333; margin-top: 6px; }
+.block-form select,
+.block-form input[type="text"] {
+    padding: 9px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.block-type { display: flex; gap: 18px; font-size: 14px; }
+.block-type label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.block-hours { display: none; gap: 12px; }
+.block-hours > div { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.block-form .btn-primary { margin-top: 12px; }
+.block-message { margin-top: 10px; font-size: 13px; line-height: 1.5; }
+.block-message.error { background: #fdecea; border: 1px solid #f1b5ae; color: #a12a1d; padding: 10px; border-radius: 6px; }
+.block-message.success { background: #eaf4e4; border: 1px solid #b9dba8; color: #1F4D32; padding: 10px; border-radius: 6px; }
+.block-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.block-row > div { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.block-row .block-reason { color: #3d4652; font-size: 13px; }
+.block-row .btn-secondary { padding: 6px 14px; flex: 0 0 auto; width: auto; }
+.block-empty { color: #888; font-size: 14px; }
+@media (max-width: 800px) {
+    .block-layout { flex-direction: column; }
+    .block-card { width: 100%; }
+}
+
+/* Tablet / iPad (and small laptops): the header items no longer fit on one line,
+   so they move below the logo and wrap instead of making the page wider */
+@media (max-width: 1100px) {
+    nav,
+    .page-nav {
+        flex-wrap: wrap;
+        row-gap: 12px;
+    }
+    nav .nav-links,
+    .page-nav .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 12px 22px;
+    }
+}
