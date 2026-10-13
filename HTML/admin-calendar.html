@@ -67,6 +67,7 @@
                 <div class="status-legend">
                     <span><span class="status-dot available"></span>Available/Open</span>
                     <span><span class="status-dot booked"></span>Booked</span>
+                    <span><span class="status-dot closed"></span>Closed</span>
                 </div>
             </div>
         </div>
@@ -80,6 +81,45 @@
             <div class="calendar-grid" id="adminCalendarGrid">
                 <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
                 <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+            </div>
+        </div>
+
+        <!-- Block Date / Hours: the owner can close a whole day or certain hours (private event, maintenance) -->
+        <div class="block-layout">
+            <div class="block-card">
+                <h4>Block Date / Hours</h4>
+                <p class="block-sub">Click a date on the calendar to close the court for an event or maintenance.</p>
+                <p class="block-title" id="blockFormTitle">Pick a date on the calendar</p>
+                <div class="block-form" id="blockForm">
+                    <label for="blockCourt">Court</label>
+                    <select id="blockCourt">
+                        <option value="both">Courts 1 &amp; 2</option>
+                        <option value="1">Court 1</option>
+                        <option value="2">Court 2</option>
+                    </select>
+
+                    <label>What to block</label>
+                    <div class="block-type">
+                        <label><input type="radio" name="blockType" value="day" checked onchange="toggleBlockHours()"> Whole day</label>
+                        <label><input type="radio" name="blockType" value="hours" onchange="toggleBlockHours()"> Certain hours</label>
+                    </div>
+                    <div class="block-hours" id="blockHoursRow">
+                        <div><label for="blockFrom">From</label><select id="blockFrom"></select></div>
+                        <div><label for="blockTo">To</label><select id="blockTo"></select></div>
+                    </div>
+
+                    <label for="blockReason">Reason <small>(optional, shown to players)</small></label>
+                    <input type="text" id="blockReason" maxlength="60" placeholder="e.g. Private event, Court maintenance">
+
+                    <button class="btn-primary" onclick="saveBlock()">Block</button>
+                </div>
+                <div class="block-message" id="blockMessage"></div>
+            </div>
+
+            <div class="block-card">
+                <h4>Blocked Dates &amp; Hours</h4>
+                <p class="block-sub">Players see these as Closed. Unblock to open them again.</p>
+                <div id="blockList"></div>
             </div>
         </div>
     </div>
