@@ -970,14 +970,34 @@ function markAllRead() {
 }
 
 // Shared Logout handler - used by every nav/sidebar Logout button across the site
+function clearLoginSession() {
+    localStorage.removeItem('pickleGroveLoggedIn');
+    localStorage.removeItem('pickleGroveRole');
+    localStorage.removeItem('pickleGroveCurrentUser');
+}
 function handleLogout() {
     if (confirm('Are you sure you want to log out?')) {
-        localStorage.removeItem('pickleGroveLoggedIn');
-        localStorage.removeItem('pickleGroveRole');
-        localStorage.removeItem('pickleGroveCurrentUser');
+        clearLoginSession();
         window.location.href = 'login.html';
     }
 }
+
+// Header button: shows "Login" for guests and "Logout" for logged-in users
+function setupAuthButton() {
+    const loggedIn = localStorage.getItem('pickleGroveLoggedIn') === 'true';
+    document.querySelectorAll('nav .logout, .page-nav .logout').forEach(btn => {
+        if (!loggedIn) {
+            btn.textContent = 'Login';
+            btn.onclick = () => { window.location.href = 'login.html'; };
+            btn.classList.add('login-btn');
+        }
+    });
+    // Help page uses its own "Log Out" popup - make sure it really logs the user out
+    document.querySelectorAll('#logoutModal .btn-primary').forEach(btn => {
+        btn.addEventListener('click', clearLoginSession);
+    });
+}
+document.addEventListener('DOMContentLoaded', setupAuthButton);
 
 // Used on schedule.html - blocks booking until the user has logged in
 function requireLoginForBooking() {
