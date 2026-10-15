@@ -423,35 +423,49 @@ function getRecentBookingRows(limit) {
     const rows = [];
     bookings.forEach(b => {
         const dateStr = new Date(b.year, b.month, b.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const isoDate = b.year + '-' + String(b.month + 1).padStart(2, '0') + '-' + String(b.day).padStart(2, '0');
         b.slots.forEach(s => {
-            rows.push({ name: b.name, date: dateStr, time: s.time, court: 'Court ' + s.court });
+            rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: s.time, court: 'Court ' + s.court });
         });
     });
     return rows.slice(0, limit || rows.length);
 }
 
 // Equipment rental records derived from bookings that included paddles/balls
+// Walk-in equipment rentals recorded by the admin (Equipment Rental page -> "+ New Rental")
+// { id, name, year, month, day, paddles, balls, total, createdAt }
+function getWalkInRentals() {
+    try {
+        const data = JSON.parse(localStorage.getItem('pickleGroveRentals'));
+        return Array.isArray(data) ? data : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+// Equipment rental rows: rentals added to online bookings + walk-in rentals, newest first
 function getEquipmentRentalRows() {
-    const bookings = getBookings().slice().sort((a, b) => b.createdAt - a.createdAt);
-    const rows = [];
-    bookings.forEach(b => {
-        if (b.paddles > 0 || b.balls > 0) {
-            const parts = [];
-            if (b.paddles > 0) parts.push(b.paddles + ' Paddles');
-            if (b.balls > 0) parts.push(b.balls + ' Balls');
-            const dateStr = new Date(b.year, b.month, b.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const today = new Date(); today.setHours(0,0,0,0);
-            const bDate = new Date(b.year, b.month, b.day);
-            rows.push({
-                name: b.name,
-                date: dateStr,
-                equipment: parts.join(', '),
-                quantity: b.paddles + b.balls,
-                status: bDate >= today ? 'Upcoming' : 'Completed'
-            });
-        }
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const pad = n => String(n).padStart(2, '0');
+    const records = getBookings().map(b => Object.assign({}, b, { source: b.source === 'admin' ? 'Walk-in booking' : 'Online booking' }))
+        .concat(getWalkInRentals().map(r => Object.assign({ source: 'Walk-in' }, r)))
+        .filter(r => r.paddles > 0 || r.balls > 0)
+        .sort((a, b) => b.createdAt - a.createdAt);
+    return records.map(r => {
+        const parts = [];
+        if (r.paddles > 0) parts.push(r.paddles + (r.paddles === 1 ? ' Paddle' : ' Paddles'));
+        if (r.balls > 0) parts.push(r.balls + (r.balls === 1 ? ' Ball' : ' Balls'));
+        const d = new Date(r.year, r.month, r.day);
+        return {
+            name: r.name,
+            source: r.source,
+            date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            isoDate: r.year + '-' + pad(r.month + 1) + '-' + pad(r.day),
+            equipment: parts.join(', '),
+            quantity: r.paddles + r.balls,
+            status: d.getTime() === today.getTime() ? 'Today' : (d > today ? 'Upcoming' : 'Completed')
+        };
     });
-    return rows;
 }
 
 // ===== Login check (booking needs an account) =====
@@ -1267,6 +1281,10 @@ function renderAdminBookingsTable() {
         const today = new Date(); today.setHours(0,0,0,0);
         rows = rows.filter(r => new Date(r.date) >= today);
     }
+    const dateFilter = document.getElementById('bookingsDateFilter');
+    if (dateFilter && dateFilter.value) {
+        rows = rows.filter(r => r.isoDate === dateFilter.value);
+    }
     if (query) {
         rows = rows.filter(r => r.name.toLowerCase().includes(query) || r.date.toLowerCase().includes(query));
     }
@@ -1281,12 +1299,120 @@ function renderAdminBookingsTable() {
 }
 document.addEventListener('DOMContentLoaded', renderAdminBookingsTable);
 
+// ===== "+ New Booking" (admin): walk-in or phone bookings for Court 1, Court 2, or both courts =====
+function nbCourts() {
+    const v = document.getElementById('nbCourt').value;
+    return v === 'both' ? ['1', '2'] : [v];
+}
+function nbDateParts() {
+    const v = document.getElementById('nbDate').value;
+    if (!v) return null;
+    const [y, m, d] = v.split('-').map(Number);
+    return { year: y, month: m - 1, day: d };
+}
+// Open hours for the chosen court(s); for both courts, only hours open on BOTH
+function nbOpenTimes() {
+    const dt = nbDateParts();
+    if (!dt) return [];
+    const lists = nbCourts().map(c => getOpenSlots(dt.year, dt.month, dt.day, c));
+    return ALL_TIME_SLOTS.filter(t => lists.every(l => l.includes(t)));
+}
+// The hours that would be booked: start time + duration, back-to-back
+function nbSelectedTimes() {
+    const start = document.getElementById('nbStart').value;
+    const hours = parseInt(document.getElementById('nbDuration').value) || 0;
+    if (!start || !hours) return [];
+    const i = ALL_TIME_SLOTS.indexOf(start);
+    return ALL_TIME_SLOTS.slice(i, i + hours);
+}
+function openNewBookingModal() {
+    const t = new Date(), pad = n => String(n).padStart(2, '0');
+    const today = t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
+    document.getElementById('nbName').value = '';
+    document.getElementById('nbCourt').value = '1';
+    document.getElementById('nbDate').value = today;
+    document.getElementById('nbDate').min = today;
+    document.getElementById('nbPaddles').value = 0;
+    document.getElementById('nbBalls').value = 0;
+    document.getElementById('nbPayment').value = 'Cash';
+    document.getElementById('nbError').textContent = '';
+    refreshNewBookingTimes();
+    openModal('newBookingModal');
+}
+function refreshNewBookingTimes() {
+    const sel = document.getElementById('nbStart');
+    const open = nbOpenTimes();
+    const dt = nbDateParts();
+    if (dt && isDateInThePast(dt.year, dt.month, dt.day)) {
+        sel.innerHTML = '<option value="">Past date</option>';
+    } else if (!open.length) {
+        sel.innerHTML = '<option value="">No open times</option>';
+    } else {
+        sel.innerHTML = open.map(t => '<option value="' + t + '">' + formatHour(slotSortHour(t)) + '</option>').join('');
+    }
+    refreshNewBookingDuration();
+}
+function refreshNewBookingDuration() {
+    const sel = document.getElementById('nbDuration');
+    const start = document.getElementById('nbStart').value;
+    const open = nbOpenTimes();
+    let max = 0;
+    if (start) {
+        for (let i = ALL_TIME_SLOTS.indexOf(start); i < ALL_TIME_SLOTS.length && open.includes(ALL_TIME_SLOTS[i]); i++) max++;
+    }
+    const keep = parseInt(sel.value) || 1;
+    sel.innerHTML = max ? Array.from({ length: max }, (_, k) => '<option value="' + (k + 1) + '">' + (k + 1) + (k ? ' hours' : ' hour') + '</option>').join('')
+                        : '<option value="">-</option>';
+    if (max) sel.value = String(Math.min(keep, max));
+    updateNewBookingTotal();
+}
+function updateNewBookingTotal() {
+    const times = nbSelectedTimes();
+    const courtFee = times.reduce((sum, t) => sum + getSlotRate(t), 0) * nbCourts().length;
+    const paddles = Math.max(0, parseInt(document.getElementById('nbPaddles').value) || 0);
+    const balls = Math.max(0, parseInt(document.getElementById('nbBalls').value) || 0);
+    document.getElementById('nbTime').textContent = times.length ? slotsRangeLabel(times) : '-';
+    document.getElementById('nbTotal').textContent = '₱' + (courtFee + paddles * 50 + balls * 20).toFixed(2);
+}
+function saveAdminBooking() {
+    const err = document.getElementById('nbError');
+    const name = document.getElementById('nbName').value.trim();
+    const dt = nbDateParts();
+    const times = nbSelectedTimes();
+    if (!name) { err.textContent = 'Please enter the customer name.'; return; }
+    if (!dt || isDateInThePast(dt.year, dt.month, dt.day)) { err.textContent = 'Please choose today or a future date.'; return; }
+    if (!times.length) { err.textContent = 'There are no open times for this court and date.'; return; }
+    // check again right before saving - never double-book or book a closed hour
+    const courts = nbCourts();
+    const stillOpen = courts.every(c => { const open = getOpenSlots(dt.year, dt.month, dt.day, c); return times.every(t => open.includes(t)); });
+    if (!stillOpen) { err.textContent = 'Some of these hours were just booked or closed. Please choose another time.'; refreshNewBookingTimes(); return; }
+    const paddles = Math.max(0, parseInt(document.getElementById('nbPaddles').value) || 0);
+    const balls = Math.max(0, parseInt(document.getElementById('nbBalls').value) || 0);
+    const slots = [];
+    times.forEach(t => courts.forEach(c => slots.push({ court: c, time: t })));
+    const total = times.reduce((sum, t) => sum + getSlotRate(t), 0) * courts.length + paddles * 50 + balls * 20;
+    const record = { id: Date.now(), name: name, year: dt.year, month: dt.month, day: dt.day, slots: slots,
+                     paddles: paddles, balls: balls, total: total, payment: document.getElementById('nbPayment').value,
+                     userEmail: '', source: 'admin', createdAt: Date.now() };
+    saveBookingRecord(record);
+    closeModal('newBookingModal');
+    const dateStr = new Date(dt.year, dt.month, dt.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('nbSuccessText').textContent = name + ' · ' + dateStr + ' · ' + groupCourtSlots(slots).map(g => g.label).join(', ') + ' · ₱' + total.toFixed(2);
+    openModal('newBookingSuccessModal');
+    renderAdminBookingsTable();
+}
+
 // ===== Equipment Rental page: real data table with search + All/Upcoming filter =====
 let equipmentFilterMode = 'all';
 function setEquipmentFilter(filter, btn) {
     equipmentFilterMode = filter;
-    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    btn.parentElement.querySelectorAll('button').forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.style.background = on ? '#e2f0d9' : 'white';           // highlight the selected tab
+        b.style.border = on ? '1px solid #a8d08d' : '1px solid #ccc';
+        b.style.color = '#1F4D32';
+    });
     renderEquipmentTable();
 }
 
@@ -1297,22 +1423,63 @@ function renderEquipmentTable() {
     let rows = getEquipmentRentalRows();
     const searchInput = document.getElementById('equipmentSearchInput');
     const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const dateInput = document.getElementById('equipmentDateFilter');
+    const dateValue = dateInput ? dateInput.value : '';
 
     if (equipmentFilterMode === 'upcoming') {
-        rows = rows.filter(r => r.status === 'Upcoming');
+        rows = rows.filter(r => r.status !== 'Completed'); // today and future
+    }
+    if (dateValue) {
+        rows = rows.filter(r => r.isoDate === dateValue);
     }
     if (query) {
-        rows = rows.filter(r => r.name.toLowerCase().includes(query) || r.date.toLowerCase().includes(query));
+        rows = rows.filter(r => r.name.toLowerCase().includes(query) || r.date.toLowerCase().includes(query) || r.source.toLowerCase().includes(query));
     }
 
     if (rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No equipment rentals found.</td></tr>';
     } else {
         tbody.innerHTML = rows.map(r =>
-            `<tr><td>${r.name}</td><td>${r.date}</td><td>${r.equipment}</td><td>${r.quantity}</td><td>${r.status}</td></tr>`
+            `<tr><td>${r.name}<div class="rental-source">${r.source}</div></td><td>${r.date}</td><td>${r.equipment}</td><td>${r.quantity}</td><td>${r.status}</td></tr>`
         ).join('');
     }
 }
+
+// ===== "+ New Rental": the admin records a walk-in customer who rents paddles or balls =====
+function openNewRentalModal() {
+    const t = new Date(), pad = n => String(n).padStart(2, '0');
+    document.getElementById('rentalName').value = '';
+    document.getElementById('rentalDate').value = t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
+    document.getElementById('rentalPaddles').value = 0;
+    document.getElementById('rentalBalls').value = 0;
+    document.getElementById('rentalError').textContent = '';
+    updateRentalTotal();
+    openModal('newRentalModal');
+}
+function updateRentalTotal() {
+    const paddles = Math.max(0, parseInt(document.getElementById('rentalPaddles').value) || 0);
+    const balls = Math.max(0, parseInt(document.getElementById('rentalBalls').value) || 0);
+    document.getElementById('rentalTotal').textContent = '₱' + (paddles * 50 + balls * 20).toFixed(2);
+}
+function saveNewRental() {
+    const name = document.getElementById('rentalName').value.trim();
+    const dateValue = document.getElementById('rentalDate').value;
+    const paddles = Math.max(0, parseInt(document.getElementById('rentalPaddles').value) || 0);
+    const balls = Math.max(0, parseInt(document.getElementById('rentalBalls').value) || 0);
+    const errorEl = document.getElementById('rentalError');
+    if (!name) { errorEl.textContent = 'Please enter the customer name.'; return; }
+    if (!dateValue) { errorEl.textContent = 'Please choose the rental date.'; return; }
+    if (paddles + balls === 0) { errorEl.textContent = 'Please add at least one paddle or ball.'; return; }
+    const [y, m, d] = dateValue.split('-').map(Number);
+    const rentals = getWalkInRentals();
+    rentals.push({ id: Date.now(), name: name, year: y, month: m - 1, day: d, paddles: paddles, balls: balls, total: paddles * 50 + balls * 20, createdAt: Date.now() });
+    localStorage.setItem('pickleGroveRentals', JSON.stringify(rentals));
+    closeModal('newRentalModal');
+    document.getElementById('rentalSuccessText').textContent = name + ' – ' + [paddles ? paddles + (paddles === 1 ? ' paddle' : ' paddles') : '', balls ? balls + (balls === 1 ? ' ball' : ' balls') : ''].filter(Boolean).join(', ') + ' (₱' + (paddles * 50 + balls * 20).toFixed(2) + ')';
+    openModal('newRentalSuccessModal');
+    renderEquipmentTable();
+}
+
 document.addEventListener('DOMContentLoaded', renderEquipmentTable);
 
 // ===== Digital Receipt page: shows the actual last confirmed booking =====
