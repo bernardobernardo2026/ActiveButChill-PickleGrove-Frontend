@@ -51,8 +51,8 @@
 
         <div class="admin-toolbar">
             <input type="text" id="bookingsSearchInput" placeholder="Search..." oninput="renderAdminBookingsTable()">
-            <input type="date">
-            <button class="btn-primary" style="max-width:170px; display:flex; align-items:center; gap:6px; justify-content:center;" onclick="openModal('newBookingModal')">&#10133; New Booking</button>
+            <input type="date" id="bookingsDateFilter" title="Filter by date" onchange="renderAdminBookingsTable()">
+            <button class="btn-primary" style="max-width:170px; display:flex; align-items:center; gap:6px; justify-content:center;" onclick="openNewBookingModal()">&#10133; New Booking</button>
         </div>
 
         <div class="admin-table-filters">
@@ -70,45 +70,65 @@
     </div>
 </div>
 
-<!-- New Booking Modal -->
+<!-- New Booking Modal: walk-in or phone bookings made by the admin -->
 <div class="modal-overlay" id="newBookingModal">
     <div class="modal-box wide">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3 style="margin:0;">New Booking</h3>
             <span style="cursor:pointer; font-size:18px;" onclick="closeModal('newBookingModal')">&#10005;</span>
         </div>
-        <p style="margin-top:4px;">Schedule court time and reserve equipment.</p>
+        <p style="margin-top:4px;">Schedule court time and reserve equipment for a walk-in or phone booking.</p>
         <div class="form-group">
-            <label>Customer Name</label>
-            <input type="text">
+            <label for="nbName">Customer Name</label>
+            <input type="text" id="nbName" placeholder="Juan Dela Cruz">
         </div>
         <div style="display:flex; gap:12px;">
             <div class="form-group" style="flex:1;">
-                <label>Court Selection</label>
-                <select>
-                    <option value="">Select Court</option>
+                <label for="nbCourt">Court Selection</label>
+                <select id="nbCourt" onchange="refreshNewBookingTimes()">
                     <option value="1">Court 1</option>
                     <option value="2">Court 2</option>
+                    <option value="both">Both Courts</option>
                 </select>
             </div>
             <div class="form-group" style="flex:1;">
-                <label>Duration</label>
-                <input type="text" placeholder="e.g. 1 hour">
+                <label for="nbDate">Date</label>
+                <input type="date" id="nbDate" onchange="refreshNewBookingTimes()">
             </div>
         </div>
         <div style="display:flex; gap:12px;">
             <div class="form-group" style="flex:1;">
-                <label>Date</label>
-                <input type="date">
+                <label for="nbStart">Start Time <small>(open times only)</small></label>
+                <select id="nbStart" onchange="refreshNewBookingDuration()"></select>
             </div>
             <div class="form-group" style="flex:1;">
-                <label>Start Time</label>
-                <input type="time">
+                <label for="nbDuration">Duration</label>
+                <select id="nbDuration" onchange="updateNewBookingTotal()"></select>
             </div>
         </div>
+        <div style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+                <label for="nbPaddles">Paddles (&#8369;50)</label>
+                <input type="number" id="nbPaddles" min="0" value="0" oninput="updateNewBookingTotal()">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label for="nbBalls">Balls (&#8369;20)</label>
+                <input type="number" id="nbBalls" min="0" value="0" oninput="updateNewBookingTotal()">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label for="nbPayment">Payment</label>
+                <select id="nbPayment">
+                    <option value="Cash">Cash</option>
+                    <option value="G-Cash">G-Cash</option>
+                    <option value="Paymaya">Paymaya</option>
+                </select>
+            </div>
+        </div>
+        <div class="rental-total-row"><span>Time: <strong id="nbTime">-</strong></span><span>Total: <strong id="nbTotal">&#8369;0.00</strong></span></div>
+        <p class="rental-error" id="nbError"></p>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal('newBookingModal')">Cancel</button>
-            <button class="btn-primary" onclick="closeModal('newBookingModal'); openModal('newBookingSuccessModal')">Add Booking</button>
+            <button class="btn-primary" onclick="saveAdminBooking()">Add Booking</button>
         </div>
     </div>
 </div>
@@ -118,6 +138,7 @@
         <div class="modal-icon success">&#10003;</div>
         <h3>Success</h3>
         <p>Booked Successfully!</p>
+        <p id="nbSuccessText" style="font-size:13px; color:#555;"></p>
         <div class="modal-actions">
             <button class="btn-primary" onclick="closeModal('newBookingSuccessModal')">Done</button>
         </div>

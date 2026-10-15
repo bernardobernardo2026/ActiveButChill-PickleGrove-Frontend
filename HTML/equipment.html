@@ -49,8 +49,8 @@
 
         <div style="display:flex; gap:15px; margin-bottom:20px;">
             <input type="text" id="equipmentSearchInput" placeholder="Search..." oninput="renderEquipmentTable()" style="flex:2; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            <input type="text" placeholder="Date" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            <button class="btn-primary" style="max-width:150px;">+ New Rental</button>
+            <input type="date" id="equipmentDateFilter" title="Filter by date" onchange="renderEquipmentTable()" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+            <button class="btn-primary" style="max-width:150px;" onclick="openNewRentalModal()">+ New Rental</button>
         </div>
 
         <h4>Equipment Rental Records</h4>
@@ -67,6 +67,52 @@
                 <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- New Rental Modal: walk-in customers renting paddles or balls -->
+<div class="modal-overlay" id="newRentalModal">
+    <div class="modal-box wide">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0;">New Rental</h3>
+            <span style="cursor:pointer; font-size:18px;" onclick="closeModal('newRentalModal')">&#10005;</span>
+        </div>
+        <p style="margin-top:4px;">Record equipment rented by a walk-in customer.</p>
+        <div class="form-group">
+            <label for="rentalName">Customer Name</label>
+            <input type="text" id="rentalName" placeholder="Juan Dela Cruz">
+        </div>
+        <div class="form-group">
+            <label for="rentalDate">Date</label>
+            <input type="date" id="rentalDate">
+        </div>
+        <div style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+                <label for="rentalPaddles">Paddles (&#8369;50 each)</label>
+                <input type="number" id="rentalPaddles" min="0" value="0" oninput="updateRentalTotal()">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label for="rentalBalls">Balls (&#8369;20 each)</label>
+                <input type="number" id="rentalBalls" min="0" value="0" oninput="updateRentalTotal()">
+            </div>
+        </div>
+        <div class="rental-total-row"><span>Total</span><strong id="rentalTotal">&#8369;0.00</strong></div>
+        <p class="rental-error" id="rentalError"></p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('newRentalModal')">Cancel</button>
+            <button class="btn-primary" onclick="saveNewRental()">Add Rental</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="newRentalSuccessModal">
+    <div class="modal-box">
+        <div class="modal-icon success">&#10003;</div>
+        <h3>Rental Added</h3>
+        <p id="rentalSuccessText">The rental was recorded.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal('newRentalSuccessModal')">Done</button>
+        </div>
     </div>
 </div>
 
