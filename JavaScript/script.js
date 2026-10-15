@@ -424,8 +424,10 @@ function getRecentBookingRows(limit) {
     bookings.forEach(b => {
         const dateStr = new Date(b.year, b.month, b.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const isoDate = b.year + '-' + String(b.month + 1).padStart(2, '0') + '-' + String(b.day).padStart(2, '0');
-        b.slots.forEach(s => {
-            rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: s.time, court: 'Court ' + s.court });
+        // one row per booking: back-to-back hours are joined into a range, and the same hours on both courts
+        // show as "Courts 1 & 2" (a booking only gets more than one row if its courts have different hours)
+        groupCourtSlots(b.slots).forEach(g => {
+            rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: g.rangeLabel, court: courtsLabel(g.courts) });
         });
     });
     return rows.slice(0, limit || rows.length);
