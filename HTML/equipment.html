@@ -54,9 +54,17 @@
         </div>
 
         <h4>Equipment Rental Records</h4>
-        <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <button class="btn-secondary" id="equipmentFilterAll" onclick="setEquipmentFilter('all', this)" style="max-width:80px;">All</button>
-            <button id="equipmentFilterUpcoming" onclick="setEquipmentFilter('upcoming', this)" style="max-width:100px; background:white; border:1px solid #ccc; border-radius:6px; padding:8px 14px; cursor:pointer;">Upcoming</button>
+        <div class="eq-tabs">
+            <button id="equipmentFilterAll" class="eq-tab active" onclick="setEquipmentFilter('all', this)">All</button>
+            <button id="equipmentFilterToday" class="eq-tab" onclick="setEquipmentFilter('today', this)">Today</button>
+            <button id="equipmentFilterUpcoming" class="eq-tab" onclick="setEquipmentFilter('upcoming', this)">Upcoming</button>
+            <button id="equipmentFilterCompleted" class="eq-tab" onclick="setEquipmentFilter('completed', this)">Completed</button>
+            <select id="equipmentSort" class="sort-select" onchange="renderEquipmentTable()" title="Sort">
+                <option value="added">Sort: Newest added</option>
+                <option value="date-asc">Sort: Date (earliest first)</option>
+                <option value="date-desc">Sort: Date (latest first)</option>
+                <option value="name">Sort: Name (A–Z)</option>
+            </select>
         </div>
 
         <table class="schedule-table" style="text-align:left;">
