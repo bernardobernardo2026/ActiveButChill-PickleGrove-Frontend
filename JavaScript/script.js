@@ -181,10 +181,8 @@ function initBookingDetails() {
         return;
     }
     const nameInput = document.getElementById('bookingCustomerName');
-    try {
-        const profile = JSON.parse(localStorage.getItem('pickleGroveUserProfile')) || {};
-        if (nameInput && !nameInput.value && profile.fullName) nameInput.value = profile.fullName;
-    } catch (e) { /* ignore */ }
+    const profile = getUserProfile();
+    if (nameInput && !nameInput.value && profile.fullName) nameInput.value = profile.fullName;
     updateBookingSummary();
 }
 document.addEventListener('DOMContentLoaded', initBookingDetails);
@@ -427,7 +425,8 @@ function getRecentBookingRows(limit) {
         // one row per booking: back-to-back hours are joined into a range, and the same hours on both courts
         // show as "Courts 1 & 2" (a booking only gets more than one row if its courts have different hours)
         groupCourtSlots(b.slots).forEach(g => {
-            rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: g.rangeLabel, court: courtsLabel(g.courts) });
+            rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: g.rangeLabel, court: courtsLabel(g.courts),
+                        dayValue: new Date(b.year, b.month, b.day).getTime(), startHour: g.start, createdAt: b.createdAt });
         });
     });
     return rows.slice(0, limit || rows.length);
@@ -465,6 +464,8 @@ function getEquipmentRentalRows() {
             isoDate: r.year + '-' + pad(r.month + 1) + '-' + pad(r.day),
             equipment: parts.join(', '),
             quantity: r.paddles + r.balls,
+            dayValue: d.getTime(),
+            createdAt: r.createdAt,
             status: d.getTime() === today.getTime() ? 'Today' : (d > today ? 'Upcoming' : 'Completed')
         };
     });
@@ -928,12 +929,9 @@ function attemptLogin() {
     localStorage.setItem('pickleGroveRole', 'user');
     localStorage.setItem('pickleGroveCurrentUser', account.email);
 
-    // Make sure the Profile page shows this account's details (keeps contact/address if it is the same person)
-    const profile = getUserProfile();
-    if (profile.email !== account.email) {
-        localStorage.setItem('pickleGroveUserProfile', JSON.stringify({
-            fullName: account.name, email: account.email, contact: '', address: ''
-        }));
+    // Each account has its own profile; create it on the first login
+    if (!localStorage.getItem(getProfileKey())) {
+        localStorage.setItem(getProfileKey(), JSON.stringify({ fullName: account.name, email: account.email, contact: '', address: '' }));
     }
     openModal('loginSuccessModal');
 }
@@ -982,6 +980,8 @@ function toggleNotifications() {
     document.getElementById('notificationPanel').classList.toggle('show');
 }
 function markAllRead() {
+    localStorage.setItem('pickleGroveNotifRead', String(Date.now()));
+    renderAdminNotifications();
     document.getElementById('notificationPanel').classList.remove('show');
 }
 
@@ -1264,6 +1264,25 @@ document.addEventListener('DOMContentLoaded', populateDashboardStats);
 
 // ===== Admin Bookings page: real data table with search + All/Upcoming filter =====
 let adminBookingsFilter = 'all';
+
+// Shared by Bookings and Equipment Rental: All / Today / Upcoming / Completed tabs
+function filterByDateTab(rows, tab) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const t = today.getTime();
+    if (tab === 'today') return rows.filter(r => r.dayValue === t);
+    if (tab === 'upcoming') return rows.filter(r => r.dayValue > t);
+    if (tab === 'completed') return rows.filter(r => r.dayValue < t);
+    return rows;
+}
+// Sort options: newest added, booking date (earliest / latest first), or name
+function sortRecordRows(rows, mode) {
+    const copy = rows.slice();
+    if (mode === 'date-asc') copy.sort((a, b) => (a.dayValue - b.dayValue) || ((a.startHour || 0) - (b.startHour || 0)));
+    else if (mode === 'date-desc') copy.sort((a, b) => (b.dayValue - a.dayValue) || ((b.startHour || 0) - (a.startHour || 0)));
+    else if (mode === 'name') copy.sort((a, b) => a.name.localeCompare(b.name));
+    else copy.sort((a, b) => b.createdAt - a.createdAt);
+    return copy;
+}
 function setBookingsFilter(filter, btn) {
     adminBookingsFilter = filter;
     btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
@@ -1279,10 +1298,9 @@ function renderAdminBookingsTable() {
     const searchInput = document.getElementById('bookingsSearchInput');
     const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-    if (adminBookingsFilter === 'upcoming') {
-        const today = new Date(); today.setHours(0,0,0,0);
-        rows = rows.filter(r => new Date(r.date) >= today);
-    }
+    rows = filterByDateTab(rows, adminBookingsFilter);
+    const sortSel = document.getElementById('bookingsSort');
+    rows = sortRecordRows(rows, sortSel ? sortSel.value : 'added');
     const dateFilter = document.getElementById('bookingsDateFilter');
     if (dateFilter && dateFilter.value) {
         rows = rows.filter(r => r.isoDate === dateFilter.value);
@@ -1408,13 +1426,7 @@ function saveAdminBooking() {
 let equipmentFilterMode = 'all';
 function setEquipmentFilter(filter, btn) {
     equipmentFilterMode = filter;
-    btn.parentElement.querySelectorAll('button').forEach(b => {
-        const on = b === btn;
-        b.classList.toggle('active', on);
-        b.style.background = on ? '#e2f0d9' : 'white';           // highlight the selected tab
-        b.style.border = on ? '1px solid #a8d08d' : '1px solid #ccc';
-        b.style.color = '#1F4D32';
-    });
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn)); // highlight the selected tab
     renderEquipmentTable();
 }
 
@@ -1428,9 +1440,9 @@ function renderEquipmentTable() {
     const dateInput = document.getElementById('equipmentDateFilter');
     const dateValue = dateInput ? dateInput.value : '';
 
-    if (equipmentFilterMode === 'upcoming') {
-        rows = rows.filter(r => r.status !== 'Completed'); // today and future
-    }
+    rows = filterByDateTab(rows, equipmentFilterMode);
+    const eqSort = document.getElementById('equipmentSort');
+    rows = sortRecordRows(rows, eqSort ? eqSort.value : 'added');
     if (dateValue) {
         rows = rows.filter(r => r.isoDate === dateValue);
     }
@@ -1489,11 +1501,16 @@ function populateReceipt() {
     const nameEl = document.getElementById('receiptCustomerName');
     if (!nameEl) return; // only run on receipt.html
 
-    let record;
-    try {
-        record = JSON.parse(localStorage.getItem('pickleGroveLastBooking'));
-    } catch (e) {
-        record = null;
+    let record = null;
+    const wantedId = new URLSearchParams(window.location.search).get('id');
+    if (wantedId) {
+        // opened from My Bookings: show that booking's receipt (only the account's own booking)
+        const me = localStorage.getItem('pickleGroveCurrentUser');
+        record = getBookings().find(b => String(b.id) === wantedId && b.userEmail === me) || null;
+        const back = document.querySelector('.back-arrow');
+        if (back) { back.href = 'mybookings.html'; back.title = 'Back to My Bookings'; }
+    } else {
+        try { record = JSON.parse(localStorage.getItem('pickleGroveLastBooking')); } catch (e) { record = null; }
     }
     if (!record) return; // no booking yet - leave the placeholder dashes
 
@@ -1526,12 +1543,22 @@ document.addEventListener('DOMContentLoaded', populateReceipt);
 const DEFAULT_PROFILE = { fullName: '', email: '', contact: '', address: '' };
 const DEFAULT_PASSWORD = 'password123'; // starting dummy password for this demo account
 
+// Each account keeps its own profile (so two people using the same browser don't share details)
+function getProfileKey() {
+    const email = localStorage.getItem('pickleGroveCurrentUser');
+    return email ? 'pickleGroveUserProfile_' + email : 'pickleGroveUserProfile';
+}
 function getUserProfile() {
+    const email = localStorage.getItem('pickleGroveCurrentUser') || '';
     try {
-        return JSON.parse(localStorage.getItem('pickleGroveUserProfile')) || DEFAULT_PROFILE;
-    } catch (e) {
-        return DEFAULT_PROFILE;
-    }
+        const own = JSON.parse(localStorage.getItem(getProfileKey()));
+        if (own) return own;
+        // older version stored one shared profile - only reuse it if it belongs to this account
+        const old = JSON.parse(localStorage.getItem('pickleGroveUserProfile'));
+        if (old && old.email === email) return old;
+    } catch (e) { /* ignore */ }
+    const account = getAccounts().find(a => a.email === email);
+    return { fullName: account ? account.name : '', email: email, contact: '', address: '' };
 }
 
 function getStoredPassword() {
@@ -1568,7 +1595,7 @@ function loadProfilePage() {
     document.getElementById('profileDisplayName').textContent = profile.fullName || 'Name';
     document.getElementById('profileDisplayEmail').textContent = profile.email || 'Email';
 
-    const savedPhoto = localStorage.getItem(getPhotoKey()) || localStorage.getItem('pickleGroveUserPhoto');
+    const savedPhoto = localStorage.getItem(getPhotoKey()); // only this account's own photo
     if (savedPhoto) {
         const preview = document.getElementById('profileAvatarPreview');
         preview.innerHTML = '';
@@ -1587,7 +1614,7 @@ function saveProfileInfo() {
         contact: document.getElementById('profileContact').value.trim(),
         address: document.getElementById('profileAddress').value.trim()
     };
-    localStorage.setItem('pickleGroveUserProfile', JSON.stringify(profile));
+    localStorage.setItem(getProfileKey(), JSON.stringify(profile));
 
     document.getElementById('profileDisplayName').textContent = profile.fullName || 'Name';
     document.getElementById('profileDisplayEmail').textContent = profile.email || 'Email';
@@ -1785,6 +1812,7 @@ function renderMyBookings() {
                 <p>Time: ${c.timeRangeStr}</p>
                 <p>Paddle Rental: ${c.paddles}</p>
                 <p class="booking-total">Total Amount: \u20B1${c.total.toFixed(2)}</p>
+                <a class="view-receipt-link" href="receipt.html?id=${c.recordId}">View Receipt &rarr;</a>
             </div>
             ${renderCancelArea(c)}
         </div>
@@ -1826,6 +1854,7 @@ function confirmCancelBooking() {
 
     localStorage.setItem('pickleGroveBookings', JSON.stringify(bookings));
     localStorage.setItem('pickleGroveCancelledCount', String(getCancelledCount() + 1));
+    addNotificationLog({ type: 'cancel', name: record.name, court: pendingCancelCourt, year: record.year, month: record.month, day: record.day, at: Date.now() });
     closeModal('cancelBookingModal');
     openModal('cancelSuccessModal');
     renderMyBookings();
@@ -1853,3 +1882,142 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el) return;
     el.textContent = 'Today, ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 });
+
+
+// ===================================================================
+// ===== ADMIN PROFILE (profile.html): working photo and details =====
+// ===================================================================
+const DEFAULT_ADMIN_PROFILE = { fullName: 'Court Administrator', email: 'admin@picklegrove.com', contact: '' };
+function getAdminProfile() {
+    try { return Object.assign({}, DEFAULT_ADMIN_PROFILE, JSON.parse(localStorage.getItem('pickleGroveAdminProfile')) || {}); }
+    catch (e) { return Object.assign({}, DEFAULT_ADMIN_PROFILE); }
+}
+function showAdminPhoto(dataUrl) {
+    const box = document.getElementById('adminAvatar');
+    if (!box) return;
+    if (dataUrl) {
+        box.innerHTML = '';
+        box.style.backgroundImage = "url('" + dataUrl + "')";
+        box.style.backgroundSize = 'cover';
+        box.style.backgroundPosition = 'center';
+    }
+}
+function loadAdminProfile() {
+    if (!document.getElementById('adminFullName')) return; // only run on profile.html
+    const p = getAdminProfile();
+    document.getElementById('adminFullName').value = p.fullName;
+    document.getElementById('adminEmail').value = p.email;
+    document.getElementById('adminContact').value = p.contact;
+    document.getElementById('adminStatus').value = 'Active';
+    showAdminPhoto(localStorage.getItem('pickleGroveAdminPhoto'));
+}
+document.addEventListener('DOMContentLoaded', loadAdminProfile);
+function saveAdminProfile() {
+    const p = {
+        fullName: document.getElementById('adminFullName').value.trim() || DEFAULT_ADMIN_PROFILE.fullName,
+        email: document.getElementById('adminEmail').value.trim() || DEFAULT_ADMIN_PROFILE.email,
+        contact: document.getElementById('adminContact').value.trim()
+    };
+    localStorage.setItem('pickleGroveAdminProfile', JSON.stringify(p));
+    openModal('savedModal');
+}
+function handleAdminPhotoUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+            const SIZE = 240, canvas = document.createElement('canvas');
+            canvas.width = SIZE; canvas.height = SIZE;
+            const side = Math.min(img.width, img.height);
+            canvas.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, SIZE, SIZE);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            try { localStorage.setItem('pickleGroveAdminPhoto', dataUrl); }
+            catch (err) { alert('Sorry, the photo could not be saved. Please try a different picture.'); return; }
+            showAdminPhoto(dataUrl);
+        };
+        img.onerror = () => alert('This file could not be opened as a picture. Please choose a JPG or PNG photo.');
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+// ===================================================================
+// ===== ADMIN NOTIFICATIONS: built from real activity ===============
+// ===================================================================
+// New bookings (online and walk-in), walk-in rentals, closed dates, and cancellations.
+function getNotificationLog() {
+    try { const d = JSON.parse(localStorage.getItem('pickleGroveNotifLog')); return Array.isArray(d) ? d : []; }
+    catch (e) { return []; }
+}
+function addNotificationLog(entry) {
+    const log = getNotificationLog();
+    log.push(entry);
+    localStorage.setItem('pickleGroveNotifLog', JSON.stringify(log.slice(-50)));
+}
+function timeAgo(ms) {
+    const sec = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+    if (sec < 60) return 'Just now';
+    const min = Math.floor(sec / 60); if (min < 60) return min + (min === 1 ? ' min ago' : ' mins ago');
+    const hr = Math.floor(min / 60); if (hr < 24) return hr + (hr === 1 ? ' hour ago' : ' hours ago');
+    const day = Math.floor(hr / 24); return day + (day === 1 ? ' day ago' : ' days ago');
+}
+function shortDate(y, m, d) {
+    return new Date(y, m, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function getAdminNotifications() {
+    const items = [];
+    getBookings().forEach(b => {
+        const lines = groupCourtSlots(b.slots).map(g => g.label).join(', ');
+        items.push({ at: b.createdAt, icon: 'green', symbol: '&#128197;',
+            title: b.source === 'admin' ? 'Walk-in booking added' : 'New booking received',
+            desc: b.name + ' · ' + shortDate(b.year, b.month, b.day), desc2: lines });
+    });
+    getWalkInRentals().forEach(r => {
+        const parts = [];
+        if (r.paddles) parts.push(r.paddles + (r.paddles === 1 ? ' paddle' : ' paddles'));
+        if (r.balls) parts.push(r.balls + (r.balls === 1 ? ' ball' : ' balls'));
+        items.push({ at: r.createdAt, icon: 'mint', symbol: '&#127955;', title: 'Equipment rental added',
+            desc: r.name + ' · ' + parts.join(', '), desc2: shortDate(r.year, r.month, r.day) });
+    });
+    getBlocks().forEach(b => {
+        items.push({ at: b.createdAt, icon: 'blue', symbol: '&#128683;', title: 'Court closed',
+            desc: courtsLabel(b.courts) + ' · ' + shortDate(b.year, b.month, b.day), desc2: blockTimeLabel(b) + (b.reason ? ' · ' + b.reason : '') });
+    });
+    getNotificationLog().forEach(n => {
+        if (n.type === 'cancel') items.push({ at: n.at, icon: 'red', symbol: '&#10007;', title: 'Booking cancelled',
+            desc: n.name + ' · Court ' + n.court, desc2: shortDate(n.year, n.month, n.day) });
+    });
+    return items.filter(i => i.at).sort((a, b) => b.at - a.at).slice(0, 10);
+}
+function renderAdminNotifications() {
+    const panel = document.getElementById('notificationPanel');
+    if (!panel) return; // only on admin pages
+    const lastRead = parseInt(localStorage.getItem('pickleGroveNotifRead')) || 0;
+    const items = getAdminNotifications();
+    const header = panel.querySelector('.notification-header');
+    panel.innerHTML = '';
+    if (header) panel.appendChild(header);
+    if (!items.length) {
+        panel.insertAdjacentHTML('beforeend', '<div class="notification-empty">No notifications yet.</div>');
+    } else {
+        panel.insertAdjacentHTML('beforeend', items.map(i =>
+            '<div class="notification-item' + (i.at > lastRead ? ' unread' : '') + '">'
+            + '<div class="notif-icon ' + i.icon + '">' + i.symbol + '</div>'
+            + '<div class="notif-body"><div class="notif-title">' + i.title + '</div>'
+            + '<div class="notif-desc">' + i.desc + '</div><div class="notif-desc">' + i.desc2 + '</div></div>'
+            + '<div class="notif-time">' + timeAgo(i.at) + '</div></div>').join(''));
+    }
+    // red badge with the number of unread notifications
+    const bell = document.querySelector('.topbar-icon[onclick="toggleNotifications()"]');
+    if (bell) {
+        const unread = items.filter(i => i.at > lastRead).length;
+        let badge = bell.querySelector('.notif-badge');
+        if (!badge) { badge = document.createElement('span'); badge.className = 'notif-badge'; bell.appendChild(badge); }
+        badge.textContent = unread > 9 ? '9+' : String(unread);
+        badge.style.display = unread ? 'flex' : 'none';
+    }
+}
+document.addEventListener('DOMContentLoaded', renderAdminNotifications);
