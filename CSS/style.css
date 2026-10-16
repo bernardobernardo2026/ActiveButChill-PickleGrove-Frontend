@@ -2120,3 +2120,23 @@ body:has(> .footer) > .footer {
 .rental-source { font-size: 12px; color: #6b7a70; margin-top: 2px; }
 .rental-total-row { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #e5e5e5; margin-top: 6px; font-size: 15px; }
 .rental-error { color: #c0392b; font-size: 13px; min-height: 16px; margin: 0 0 6px; }
+
+/* ===== Mock defense fixes ===== */
+/* My Bookings: link to each booking's receipt */
+.booking-card .view-receipt-link { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: bold; color: #1F4D32; }
+/* Admin tabs (Bookings + Equipment) and sort menu */
+.eq-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+.eq-tab { background: white; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; color: #1F4D32; font-size: 13px; }
+.eq-tab.active { background: #e2f0d9; border-color: #a8d08d; font-weight: bold; }
+.admin-table-filters { flex-wrap: wrap; align-items: center; }
+.admin-table-filters button.active { font-weight: bold; }
+.sort-select { margin-left: auto; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; background: white; font-size: 13px; color: #1F4D32; cursor: pointer; }
+/* Admin profile photo */
+.admin-avatar { width: 80px; height: 80px; border: 1px solid #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 28px; cursor: pointer; overflow: hidden; flex-shrink: 0; }
+.admin-avatar:hover { border-color: #1F4D32; }
+/* Admin notifications: unread badge and highlight */
+.content-topbar .topbar-icon { position: relative; }
+.notif-badge { position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #d9534f; color: white; font-size: 10px; font-weight: bold; display: none; align-items: center; justify-content: center; box-sizing: border-box; }
+.notification-item.unread { background: #f3f8f0; }
+.notification-empty { padding: 18px; color: #888; font-size: 13px; text-align: center; border-top: 1px solid #eee; }
+@media (max-width: 600px) { .sort-select { margin-left: 0; width: 100%; } }
