@@ -92,7 +92,7 @@
                 <p class="block-title" id="blockFormTitle">Pick a date on the calendar</p>
                 <div class="block-form" id="blockForm">
                     <label for="blockCourt">Court</label>
-                    <select id="blockCourt">
+                    <select id="blockCourt" onchange="updateBlockFormOptions()">
                         <option value="both">Courts 1 &amp; 2</option>
                         <option value="1">Court 1</option>
                         <option value="2">Court 2</option>
@@ -100,13 +100,15 @@
 
                     <label>What to block</label>
                     <div class="block-type">
-                        <label><input type="radio" name="blockType" value="day" checked onchange="toggleBlockHours()"> Whole day</label>
+                        <label id="blockDayLabel"><input type="radio" name="blockType" value="day" checked onchange="toggleBlockHours()"> Whole day</label>
                         <label><input type="radio" name="blockType" value="hours" onchange="toggleBlockHours()"> Certain hours</label>
                     </div>
+                    <p class="block-hint" id="blockDayNote"></p>
                     <div class="block-hours" id="blockHoursRow">
-                        <div><label for="blockFrom">From</label><select id="blockFrom"></select></div>
+                        <div><label for="blockFrom">From</label><select id="blockFrom" onchange="fillBlockToOptions()"></select></div>
                         <div><label for="blockTo">To</label><select id="blockTo"></select></div>
                     </div>
+                    <p class="block-hint" id="blockHoursHint">Only hours that are still open are listed. Booked or already closed hours are hidden.</p>
 
                     <label for="blockReason">Reason <small>(optional, shown to players)</small></label>
                     <input type="text" id="blockReason" maxlength="60" placeholder="e.g. Private event, Court maintenance">
