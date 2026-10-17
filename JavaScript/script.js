@@ -1,3 +1,31 @@
+// ===================================================================
+// ===== SESSIONS: admin and player log in separately ================
+// ===================================================================
+// The player login (login.html) and the admin login (admin-login.html) are separate,
+// and each keeps its own session. Both can be logged in on the same browser at the
+// same time, and logging out of one does not log out the other.
+const ADMIN_PAGES = ['admin-dashboard.html', 'admin-calendar.html', 'admin-bookings.html', 'equipment.html', 'profile.html', 'settings.html', 'admin-login.html'];
+function isAdminContext() {
+    const page = decodeURIComponent(location.pathname.split('/').pop() || '');
+    return ADMIN_PAGES.includes(page);
+}
+function sessionKey() { return isAdminContext() ? 'pickleGroveAdminSession' : 'pickleGroveUserSession'; }
+function sessionEmail() { return localStorage.getItem(sessionKey()); }      // email of whoever is logged in on this side
+function sessionLoggedIn() { return !!sessionEmail(); }
+function sessionRole() { return sessionLoggedIn() ? (isAdminContext() ? 'admin' : 'user') : null; }
+function startSession(role, email) {
+    localStorage.setItem(role === 'admin' ? 'pickleGroveAdminSession' : 'pickleGroveUserSession', email);
+}
+// Older versions used one shared session - move it to the new separate one
+(function migrateOldSession() {
+    try {
+        const role = localStorage.getItem('pickleGroveRole') === 'admin' ? 'admin' : 'user';
+        const email = localStorage.getItem('pickleGroveCurrentUser') || (role === 'admin' ? 'admin@picklegrove.com' : 'user@picklegrove.com');
+        if (localStorage.getItem('pickleGroveLoggedIn') === 'true') startSession(role, email);
+        ['pickleGroveLoggedIn', 'pickleGroveRole', 'pickleGroveCurrentUser'].forEach(k => localStorage.removeItem(k));
+    } catch (e) { /* storage blocked */ }
+})();
+
 // Shared modal open/close functions (used across most pages)
 function openModal(id) {
     document.getElementById(id).classList.add('show');
@@ -277,7 +305,7 @@ function finalizeBooking() {
         balls: ballQty,
         total: total,
         payment: paymentInput ? paymentInput.value : '',
-        userEmail: localStorage.getItem('pickleGroveCurrentUser') || '', // who booked it - My Bookings only shows your own
+        userEmail: sessionEmail() || '', // who booked it - My Bookings only shows your own
         createdAt: Date.now()
     };
 
@@ -426,6 +454,7 @@ function getRecentBookingRows(limit) {
         // show as "Courts 1 & 2" (a booking only gets more than one row if its courts have different hours)
         groupCourtSlots(b.slots).forEach(g => {
             rows.push({ name: b.name, date: dateStr, isoDate: isoDate, time: g.rangeLabel, court: courtsLabel(g.courts),
+                        source: b.source === 'admin' ? 'Walk-in booking' : 'Online booking',
                         dayValue: new Date(b.year, b.month, b.day).getTime(), startHour: g.start, createdAt: b.createdAt });
         });
     });
@@ -473,7 +502,7 @@ function getEquipmentRentalRows() {
 
 // ===== Login check (booking needs an account) =====
 function isUserLoggedIn() {
-    return localStorage.getItem('pickleGroveLoggedIn') === 'true';
+    return sessionLoggedIn();
 }
 // Shows the "Login Required" box (or goes to the login page) and returns false when nobody is logged in
 function requireLogin() {
@@ -909,6 +938,12 @@ function getAccounts() {
     return accounts;
 }
 
+function showLoginError(text) {
+    const el = document.getElementById('loginErrorMessage');
+    if (el) el.textContent = text;
+    openModal('loginErrorModal');
+}
+
 function attemptLogin() {
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
@@ -917,23 +952,34 @@ function attemptLogin() {
         return;
     }
 
-    if (email === ADMIN_ACCOUNT.email && password === ADMIN_ACCOUNT.password) {
-        localStorage.setItem('pickleGroveLoggedIn', 'true');
-        localStorage.setItem('pickleGroveRole', 'admin');
-        localStorage.setItem('pickleGroveCurrentUser', email);
+    const isAdminLogin = !!document.getElementById('adminLoginPage');
+    const isAdminCreds = email === ADMIN_ACCOUNT.email && password === ADMIN_ACCOUNT.password;
+
+    if (isAdminLogin) {
+        // Admin Login page: only the admin account works here
+        if (!isAdminCreds) {
+            showLoginError(getAccounts().some(a => a.email === email && a.password === password)
+                ? 'This is the Admin Login. Players, please use the Player Login page.'
+                : 'Incorrect admin email or password. Please try again.');
+            return;
+        }
+        startSession('admin', email);
         openModal('loginSuccessModal');
         return;
     }
 
+    // Player Login page: the admin account is not accepted here
+    if (isAdminCreds) {
+        showLoginError('This is the Player Login. Admins, please use the Admin Login page.');
+        return;
+    }
     const account = getAccounts().find(a => a.email === email && a.password === password);
     if (!account) {
-        openModal('loginErrorModal');
+        showLoginError('Incorrect email or password. Please try again, or sign up if you don\'t have an account yet.');
         return;
     }
 
-    localStorage.setItem('pickleGroveLoggedIn', 'true');
-    localStorage.setItem('pickleGroveRole', 'user');
-    localStorage.setItem('pickleGroveCurrentUser', account.email);
+    startSession('user', account.email);
 
     // Each account has its own profile; create it on the first login
     if (!localStorage.getItem(getProfileKey())) {
@@ -944,9 +990,7 @@ function attemptLogin() {
 
 // Called by the "Done" button on the login success modal
 function goAfterLogin() {
-    window.location.href = (localStorage.getItem('pickleGroveRole') === 'admin')
-        ? 'admin-dashboard.html'
-        : 'landingpage.html';
+    window.location.href = document.getElementById('adminLoginPage') ? 'admin-dashboard.html' : 'landingpage.html';
 }
 
 function attemptSignup() {
@@ -993,20 +1037,19 @@ function markAllRead() {
 
 // Shared Logout handler - used by every nav/sidebar Logout button across the site
 function clearLoginSession() {
-    localStorage.removeItem('pickleGroveLoggedIn');
-    localStorage.removeItem('pickleGroveRole');
-    localStorage.removeItem('pickleGroveCurrentUser');
+    localStorage.removeItem(sessionKey()); // only this side (player or admin) logs out
 }
+function loginPageUrl() { return isAdminContext() ? 'admin-login.html' : 'login.html'; }
 function handleLogout() {
     if (confirm('Are you sure you want to log out?')) {
         clearLoginSession();
-        window.location.href = 'login.html';
+        window.location.href = loginPageUrl();
     }
 }
 
 // Header button: shows "Login" for guests and "Logout" for logged-in users
 function setupAuthButton() {
-    const loggedIn = localStorage.getItem('pickleGroveLoggedIn') === 'true';
+    const loggedIn = sessionLoggedIn();
     document.querySelectorAll('nav .logout, .page-nav .logout').forEach(btn => {
         if (!loggedIn) {
             btn.textContent = 'Login';
@@ -1024,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', setupAuthButton);
 // Used on schedule.html - blocks booking until the user has logged in
 function requireLoginForBooking() {
     if (!document.getElementById('detailTime')) return; // only run on schedule.html (Booking Details)
-    const isLoggedIn = localStorage.getItem('pickleGroveLoggedIn') === 'true';
+    const isLoggedIn = sessionLoggedIn();
     if (!isLoggedIn) {
         openModal('loginRequiredModal');
     }
@@ -1339,7 +1382,7 @@ function populateDashboardStats() {
         tbody.innerHTML = '<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>'.repeat(7);
     } else {
         tbody.innerHTML = rows.map(r =>
-            `<tr><td>${r.name}</td><td>${r.date}</td><td>${r.time}</td><td>${r.court}</td></tr>`
+            `<tr><td>${personCell(r.name)}</td><td>${r.date}</td><td>${timeChip(r.time)}</td><td>${courtPill(r.court)}</td></tr>`
         ).join('');
     }
 }
@@ -1396,7 +1439,7 @@ function renderAdminBookingsTable() {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">No bookings found.</td></tr>';
     } else {
         tbody.innerHTML = rows.map(r =>
-            `<tr><td>${r.name}</td><td>${r.date}</td><td>${r.time}</td><td>${r.court}</td></tr>`
+            `<tr><td>${personCell(r.name, r.source)}</td><td><div class="cell-date">${r.date}</div>${statusPill(dayStatus(r.dayValue))}</td><td>${timeChip(r.time)}</td><td>${courtPill(r.court)}</td></tr>`
         ).join('');
     }
 }
@@ -1537,7 +1580,7 @@ function renderEquipmentTable() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No equipment rentals found.</td></tr>';
     } else {
         tbody.innerHTML = rows.map(r =>
-            `<tr><td>${r.name}<div class="rental-source">${r.source}</div></td><td>${r.date}</td><td>${r.equipment}</td><td>${r.quantity}</td><td>${r.status}</td></tr>`
+            `<tr><td>${personCell(r.name, r.source)}</td><td>${r.date}</td><td><span class="equip-chip">${r.equipment}</span></td><td><span class="qty-badge">${r.quantity}</span></td><td>${statusPill(r.status)}</td></tr>`
         ).join('');
     }
 }
@@ -1588,7 +1631,7 @@ function populateReceipt() {
     const wantedId = new URLSearchParams(window.location.search).get('id');
     if (wantedId) {
         // opened from My Bookings: show that booking's receipt (only the account's own booking)
-        const me = localStorage.getItem('pickleGroveCurrentUser');
+        const me = sessionEmail();
         record = getBookings().find(b => String(b.id) === wantedId && b.userEmail === me) || null;
         const back = document.querySelector('.back-arrow');
         if (back) { back.href = 'mybookings.html'; back.title = 'Back to My Bookings'; }
@@ -1628,11 +1671,11 @@ const DEFAULT_PASSWORD = 'password123'; // starting dummy password for this demo
 
 // Each account keeps its own profile (so two people using the same browser don't share details)
 function getProfileKey() {
-    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const email = sessionEmail();
     return email ? 'pickleGroveUserProfile_' + email : 'pickleGroveUserProfile';
 }
 function getUserProfile() {
-    const email = localStorage.getItem('pickleGroveCurrentUser') || '';
+    const email = sessionEmail() || '';
     try {
         const own = JSON.parse(localStorage.getItem(getProfileKey()));
         if (own) return own;
@@ -1645,7 +1688,7 @@ function getUserProfile() {
 }
 
 function getStoredPassword() {
-    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const email = sessionEmail();
     const account = getAccounts().find(a => a.email === email);
     if (account) return account.password;
     return localStorage.getItem('pickleGroveUserPassword') || DEFAULT_PASSWORD;
@@ -1653,7 +1696,7 @@ function getStoredPassword() {
 
 // Saves a new password for the logged-in account (falls back to the old single-password key)
 function saveNewPassword(newPassword) {
-    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const email = sessionEmail();
     const accounts = getAccounts();
     const account = accounts.find(a => a.email === email);
     if (account) {
@@ -1668,10 +1711,21 @@ function saveNewPassword(newPassword) {
 function loadProfilePage() {
     const nameInput = document.getElementById('profileFullName');
     if (!nameInput) return; // only run on myprofile.html
+    if (!sessionLoggedIn()) {
+        // Guests cannot add a photo or edit anything - ask them to log in first
+        document.querySelector('.profile-layout').innerHTML =
+            '<div class="profile-main-card login-needed">'
+            + '<div class="login-needed-icon">&#128100;</div>'
+            + '<h4>Please log in to view your profile</h4>'
+            + '<p>Your profile, photo and password are only available when you are logged in.</p>'
+            + '<a class="btn-primary" href="login.html">Log In</a>'
+            + '<p class="login-needed-sub">No account yet? <a href="signup.html">Sign up</a></p></div>';
+        return;
+    }
 
     const profile = getUserProfile();
     nameInput.value = profile.fullName;
-    document.getElementById('profileEmail').value = profile.email;
+    document.getElementById('profileEmail').value = sessionEmail(); // login email, read-only
     document.getElementById('profileContact').value = profile.contact;
     document.getElementById('profileAddress').value = profile.address;
 
@@ -1693,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', loadProfilePage);
 function saveProfileInfo() {
     const profile = {
         fullName: document.getElementById('profileFullName').value.trim(),
-        email: document.getElementById('profileEmail').value.trim(),
+        email: sessionEmail(),
         contact: document.getElementById('profileContact').value.trim(),
         address: document.getElementById('profileAddress').value.trim()
     };
@@ -1707,7 +1761,7 @@ function saveProfileInfo() {
 
 // Each account keeps its own photo (so two people signing up on the same phone don't share one)
 function getPhotoKey() {
-    const email = localStorage.getItem('pickleGroveCurrentUser');
+    const email = sessionEmail();
     return email ? 'pickleGroveUserPhoto_' + email : 'pickleGroveUserPhoto';
 }
 
@@ -1810,7 +1864,7 @@ function hour24ToLabel(hour) {
 // Builds one card per (booking record, court) combo, since a single checkout can span both courts
 function getMyBookingsCards() {
     // Only the logged-in account's own bookings (older bookings saved without an account are hidden)
-    const me = localStorage.getItem('pickleGroveCurrentUser');
+    const me = sessionEmail();
     const bookings = getBookings().filter(b => me && b.userEmail === me);
     const cards = [];
     bookings.forEach(b => {
@@ -1918,7 +1972,7 @@ function openCancelModal(recordId, court) {
 
 function confirmCancelBooking() {
     const bookings = getBookings();
-    const me = localStorage.getItem('pickleGroveCurrentUser');
+    const me = sessionEmail();
     const idx = bookings.findIndex(b => b.id === pendingCancelRecordId && b.userEmail === me); // can only cancel your own
     if (idx === -1) { closeModal('cancelBookingModal'); return; }
 
@@ -1952,8 +2006,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // Admin pages are only for the admin account - anyone else is sent to the login page
 function requireAdmin() {
     if (!document.querySelector('.admin-layout')) return; // only run on admin pages
-    if (localStorage.getItem('pickleGroveRole') !== 'admin') {
-        window.location.href = 'login.html';
+    if (sessionRole() !== 'admin') {
+        window.location.href = 'admin-login.html';
     }
 }
 document.addEventListener('DOMContentLoaded', requireAdmin);
@@ -2146,3 +2200,28 @@ window.addEventListener('storage', e => {
 });
 // Coming back with the browser Back button can show an old saved copy of the page - redraw it too
 window.addEventListener('pageshow', e => { if (e.persisted) refreshLiveViews(); });
+
+
+// ===================================================================
+// ===== TABLE CELLS: styled pieces for the admin tables =============
+// ===================================================================
+// Initials badge + name (+ small source line). The initials come from a data attribute
+// and are drawn by CSS, so searching and sorting still only see the real name.
+const AVATAR_COLORS = ['#2E7D4F', '#1F4D32', '#3E7CB1', '#B5651D', '#7B4FA0', '#C0392B', '#2A8C8C'];
+function personCell(name, sub) {
+    const parts = String(name || '?').trim().split(/\s+/);
+    const initials = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+    let h = 0; for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) % 997;
+    return '<div class="cell-person"><span class="avatar-chip" data-initials="' + initials + '" style="background:' + AVATAR_COLORS[h % AVATAR_COLORS.length] + '"></span>'
+         + '<div><div class="cell-name">' + name + '</div>' + (sub ? '<div class="rental-source">' + sub + '</div>' : '') + '</div></div>';
+}
+function timeChip(t) { return '<span class="time-chip">' + t + '</span>'; }
+function courtPill(label) {
+    const cls = label.indexOf('&') >= 0 ? 'both' : (label.indexOf('2') >= 0 ? 'c2' : 'c1');
+    return '<span class="court-pill ' + cls + '">' + label + '</span>';
+}
+function dayStatus(dayValue) {
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    return dayValue === t.getTime() ? 'Today' : (dayValue > t.getTime() ? 'Upcoming' : 'Completed');
+}
+function statusPill(s) { return '<span class="status-pill ' + String(s).toLowerCase() + '">' + s + '</span>'; }
