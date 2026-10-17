@@ -770,6 +770,12 @@ function markPastSlots() {
             slot.title = closedLabel(block);
             return;
         }
+        if (slot.classList.contains('closed')) { // the admin opened this hour again
+            slot.classList.remove('closed');
+            slot.classList.add('available');
+            slot.textContent = '';
+            slot.title = '';
+        }
 
         const match = time.match(/(\d+):00(AM|PM)/);
         if (!match) return;
@@ -1128,12 +1134,84 @@ function initAdminCalendarPage() {
 let adminSelectedDay = null; // { year, month, day }
 
 function fillBlockHourOptions() {
+    updateBlockFormOptions();
+}
+
+// Courts chosen in the Block form: ['1','2'], ['1'] or ['2']
+function getBlockFormCourts() {
+    const v = document.getElementById('blockCourt').value;
+    return v === 'both' ? ['1', '2'] : [v];
+}
+// Hours the admin can still close on the selected date: not booked, not already closed, not already past
+function getBlockableHourIdx() {
+    if (!adminSelectedDay) return ALL_TIME_SLOTS.map((t, i) => i);
+    const { year, month, day } = adminSelectedDay;
+    const courts = getBlockFormCourts();
+    const isToday = isTodayDate(year, month, day);
+    let currentHour = new Date().getHours();
+    if (currentHour < 7) currentHour += 24;
+    const idx = [];
+    ALL_TIME_SLOTS.forEach((t, i) => {
+        if (isToday && slotSortHour(t) < currentHour) return;
+        const free = courts.every(c => !isExactSlotBooked(year, month, day, c, t) && !getSlotBlock(year, month, day, c, t));
+        if (free) idx.push(i);
+    });
+    return idx;
+}
+// Number of booked hours on the selected date for the chosen court(s)
+function countBookedHoursForBlock() {
+    if (!adminSelectedDay) return 0;
+    const { year, month, day } = adminSelectedDay;
+    const courts = getBlockFormCourts();
+    let n = 0;
+    ALL_TIME_SLOTS.forEach(t => courts.forEach(c => { if (isExactSlotBooked(year, month, day, c, t)) n++; }));
+    return n;
+}
+// Rebuilds the Block form for the selected date + court: hides booked/closed hours,
+// and turns off "Whole day" when someone already booked that day
+function updateBlockFormOptions() {
+    const from = document.getElementById('blockFrom');
+    if (!from) return;
+    const keepFrom = from.value, keepTo = document.getElementById('blockTo').value;
+    const open = getBlockableHourIdx();
+    const booked = countBookedHoursForBlock();
+    const dayRadio = document.querySelector('input[name="blockType"][value="day"]');
+    const hoursRadio = document.querySelector('input[name="blockType"][value="hours"]');
+    const note = document.getElementById('blockDayNote');
+    const saveBtn = document.querySelector('#blockForm .btn-primary');
+
+    from.innerHTML = open.map(i => '<option value="' + i + '">' + formatHour(slotSortHour(ALL_TIME_SLOTS[i])) + '</option>').join('');
+    if (open.includes(parseInt(keepFrom))) from.value = keepFrom;
+    fillBlockToOptions(keepTo);
+
+    dayRadio.disabled = booked > 0;
+    document.getElementById('blockDayLabel').style.opacity = booked > 0 ? '0.45' : '1';
+    if (booked > 0 && dayRadio.checked) hoursRadio.checked = true;
+    if (!open.length) {
+        note.textContent = 'Every hour on this date is already booked or closed for this court. Nothing left to block.';
+    } else if (booked > 0) {
+        note.textContent = 'Whole day is not available: ' + booked + (booked === 1 ? ' hour is' : ' hours are') + ' already booked on this date. You can still close the open hours.';
+    } else {
+        note.textContent = '';
+    }
+    saveBtn.disabled = !open.length;
+    saveBtn.style.opacity = open.length ? '1' : '0.5';
+    toggleBlockHours();
+}
+// "To" only lists hours that continue from "From" without passing a booked or closed hour
+function fillBlockToOptions(keepTo) {
     const from = document.getElementById('blockFrom');
     const to = document.getElementById('blockTo');
     if (!from || !to) return;
-    from.innerHTML = ALL_TIME_SLOTS.map((t, i) => '<option value="' + i + '">' + formatHour(slotSortHour(t)) + '</option>').join('');
-    to.innerHTML = ALL_TIME_SLOTS.map((t, i) => '<option value="' + i + '">' + formatHour(slotSortHour(t) + 1) + '</option>').join('');
-    to.value = String(ALL_TIME_SLOTS.length - 1);
+    const open = getBlockableHourIdx();
+    const start = parseInt(from.value);
+    const opts = [];
+    if (!isNaN(start)) {
+        for (let i = start; open.includes(i); i++) opts.push(i);
+    }
+    to.innerHTML = opts.map(i => '<option value="' + i + '">' + formatHour(slotSortHour(ALL_TIME_SLOTS[i]) + 1) + '</option>').join('');
+    if (keepTo && opts.includes(parseInt(keepTo))) to.value = keepTo;
+    else if (opts.length) to.value = String(opts[opts.length - 1]);
 }
 
 function selectAdminBlockDay(year, month, day) {
@@ -1152,12 +1230,15 @@ function selectAdminBlockDay(year, month, day) {
     document.getElementById('blockForm').classList.add('show');
     msg.className = 'block-message';
     msg.textContent = '';
+    updateBlockFormOptions();
     renderAdminCalendarGeneric('adminCalendarGrid', 'adminCalendarLabel', adminCalendarDate, null);
 }
 
 function toggleBlockHours() {
     const certain = document.querySelector('input[name="blockType"]:checked').value === 'hours';
     document.getElementById('blockHoursRow').style.display = certain ? 'flex' : 'none';
+    const hint = document.getElementById('blockHoursHint');
+    if (hint) hint.style.display = certain ? 'block' : 'none';
 }
 
 function saveBlock() {
@@ -1207,6 +1288,7 @@ function saveBlock() {
     msg.textContent = 'Blocked: ' + (courts.length === 2 ? 'Courts 1 & 2' : 'Court ' + courts[0]) + ', ' + (allDay ? 'whole day' : slotsRangeLabel(slots)) + '. Players will see it as ' + closedLabel({ reason }) + '.';
     renderAdminCalendarGeneric('adminCalendarGrid', 'adminCalendarLabel', adminCalendarDate, null);
     renderBlockList();
+    updateBlockFormOptions();
 }
 
 function removeBlock(id) {
@@ -1214,6 +1296,7 @@ function removeBlock(id) {
     saveBlocks(getBlocks().filter(b => b.id !== id));
     renderAdminCalendarGeneric('adminCalendarGrid', 'adminCalendarLabel', adminCalendarDate, null);
     renderBlockList();
+    updateBlockFormOptions();
 }
 
 // Upcoming blocks (past ones are hidden)
@@ -2021,3 +2104,45 @@ function renderAdminNotifications() {
     }
 }
 document.addEventListener('DOMContentLoaded', renderAdminNotifications);
+
+
+// ===================================================================
+// ===== LIVE UPDATE: keep open pages in sync with other tabs ========
+// ===================================================================
+// Example: the user has Book a Court open while the admin blocks or unblocks hours in another tab.
+// The browser fires a "storage" event in the other tabs, so we redraw what is on screen right away.
+function refreshLiveViews() {
+    // Book a Court (availability.html): drop picked hours that are no longer open, then redraw
+    if (document.getElementById('timeSlotList')) {
+        let dropped = false;
+        if (selectedBookingDate) {
+            const { year, month, day } = selectedBookingDate;
+            [1, 2].forEach(c => {
+                const open = getOpenSlots(year, month, day, c);
+                const keep = courtSelections[c].filter(t => open.includes(t));
+                if (keep.length !== courtSelections[c].length) dropped = true;
+                courtSelections[c] = keep;
+            });
+        }
+        renderCalendar();
+        renderTimeSlots();
+        if (dropped) document.getElementById('slotNotice').textContent = 'Some hours you picked were just closed or booked, so they were removed.';
+    }
+    markPastSlots();                 // Home page live table
+    renderMyBookings();
+    renderAdminBookingsTable();
+    renderEquipmentTable();
+    renderAdminNotifications();
+    populateDashboardStats();
+    initDashboardCalendar();
+    if (document.getElementById('adminCalendarGrid')) {
+        renderAdminCalendarGeneric('adminCalendarGrid', 'adminCalendarLabel', adminCalendarDate, null);
+        renderBlockList();
+        updateBlockFormOptions(); // a new booking from another tab hides that hour here too
+    }
+}
+window.addEventListener('storage', e => {
+    if (!e.key || e.key.indexOf('pickleGrove') === 0) refreshLiveViews();
+});
+// Coming back with the browser Back button can show an old saved copy of the page - redraw it too
+window.addEventListener('pageshow', e => { if (e.persisted) refreshLiveViews(); });
