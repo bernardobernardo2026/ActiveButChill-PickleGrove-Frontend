@@ -42,7 +42,7 @@
                     <h4 id="profileDisplayName">Name</h4>
                     <p id="profileDisplayEmail">Email</p>
                 </div>
-                <button class="btn-secondary" style="max-width:150px; margin-left:auto;" onclick="document.getElementById('profilePhotoInput').click()">Edit Profile</button>
+                <button class="btn-secondary" style="max-width:150px; margin-left:auto;" onclick="document.getElementById('profilePhotoInput').click()">Change Photo</button>
             </div>
             <hr class="summary-divider">
             <h4 style="margin-top:0;">Personal Information</h4>
@@ -50,7 +50,7 @@
                 <input type="text" id="profileFullName" placeholder="Fullname">
             </div>
             <div class="form-group">
-                <input type="email" id="profileEmail" placeholder="Email Address">
+                <input type="email" id="profileEmail" placeholder="Email Address" readonly title="This is your login email and cannot be changed here.">
             </div>
             <div class="form-group">
                 <input type="text" id="profileContact" placeholder="Contact no.">
@@ -59,6 +59,7 @@
                 <input type="text" id="profileAddress" placeholder="Address">
             </div>
             <div class="form-actions">
+                <button class="btn-secondary" style="max-width:120px;" onclick="loadProfilePage()">Cancel</button>
                 <button class="btn-primary" style="max-width:150px;" onclick="saveProfileInfo()">Save Changes</button>
             </div>
         </div>
