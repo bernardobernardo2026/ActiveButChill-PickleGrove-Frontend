@@ -2140,3 +2140,8 @@ body:has(> .footer) > .footer {
 .notification-item.unread { background: #f3f8f0; }
 .notification-empty { padding: 18px; color: #888; font-size: 13px; text-align: center; border-top: 1px solid #eee; }
 @media (max-width: 600px) { .sort-select { margin-left: 0; width: 100%; } }
+/* Admin Block form: short helper notes */
+.block-hint { margin: 0; font-size: 12px; color: #6b7a70; line-height: 1.4; }
+.block-hint:empty { display: none; }
+#blockHoursHint { display: none; }
+.block-type input:disabled + * , .block-type label input:disabled { cursor: not-allowed; }
